@@ -1,0 +1,46 @@
+﻿@model IEnumerable<ShopGiay.Models.Loaigiay>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_LayoutAdmin";
+}
+
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Danh sách các loại giày</h2>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fa fa-plus"></i> Thêm loại giày mới
+        </a>
+    </div>
+    <table class="table table-bordered table-striped align-middle">
+        <thead class="table-info">
+            <tr>
+                <th style="width: 70%">Tên Loại giày</th>
+                <th style="width: 30%" class="text-center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ten)
+                </td>
+                    <td class="align-middle">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a asp-action="Edit" asp-route-id="@item.MaLg" class="btn btn-warning icon-btn" title="Sửa">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.MaLg" class="btn btn-danger icon-btn" title="Xóa">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+            </tr>
+    }
+        </tbody>
+    </table>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+

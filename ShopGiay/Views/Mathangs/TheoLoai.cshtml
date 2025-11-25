@@ -1,0 +1,37 @@
+﻿@model IEnumerable<ShopGiay.Models.Mathang>
+
+<div class="container mt-4">
+    <h3 class="mb-4">Sản phẩm theo loại</h3>
+
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card shadow-sm" style="border-radius: 12px;">
+                    <img src="~/images/products/@item.HinhAnh" class="card-img-top" />
+
+                    <div class="card-body">
+                        <h6 class="card-title">@item.Ten</h6>
+                        <p class="text-danger fw-bold">@item.GiaBan VNĐ</p>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-controller="Customers"
+                               asp-action="Details"
+                               asp-route-id="@item.MaMh"
+                               class="btn btn-outline-primary btn-sm">
+                                Xem chi tiết
+                            </a>
+
+                            <a asp-controller="Customers"
+                               asp-action="AddToCart"
+                               asp-route-id="@item.MaMh"
+                               class="btn btn-success btn-sm">
+                                Mua hàng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

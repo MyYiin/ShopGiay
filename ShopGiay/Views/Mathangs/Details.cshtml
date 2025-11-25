@@ -1,0 +1,96 @@
+﻿@model ShopGiay.Models.Mathang
+
+@{
+    ViewData["Title"] = "Details";
+}
+<div class="container mt-4">
+
+    <h2 class="fw-bold mb-3">Chi tiết sản phẩm</h2>
+
+    <div class="card shadow-sm p-4">
+
+        <div class="row">
+
+            <!-- Hình Ảnh -->
+            <div class="col-md-4 text-center mb-4">
+                @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                {
+                    <img src="~/images/products/@Model.HinhAnh"
+                         alt="@Model.Ten"
+                         class="img-fluid rounded border"
+                         style="max-height: 280px; object-fit: contain;" />
+                }
+                else
+                {
+                    <div class="text-muted fst-italic mt-5">Chưa có hình ảnh</div>
+                }
+            </div>
+
+            <!-- Thông tin -->
+            <div class="col-md-8">
+
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="width: 30%">Tên sản phẩm</th>
+                        <td>@Model.Ten</td>
+                    </tr>
+
+                    <tr>
+                        <th>Mô tả</th>
+                        <td>@Model.MoTa</td>
+                    </tr>
+
+                    <tr>
+                        <th>Giá gốc</th>
+                        <td> @String.Format("{0:N0}", Model.GiaGoc) VNĐ</td>
+                    </tr>
+
+                    <tr>
+                        <th>Giá bán</th>
+                        <td class="text-danger fw-bold"> @String.Format("{0:N0}", Model.GiaBan) VNĐ</td>
+                    </tr>
+
+                    <tr>
+                        <th>Lượt xem</th>
+                        <td>@Model.LuotXem</td>
+                    </tr>
+
+                    <tr>
+                        <th>Lượt mua</th>
+                        <td>@Model.LuotMua</td>
+                    </tr>
+
+                    <tr>
+                        <th>Loại giày</th>
+                        <td>@Model.MaLgNavigation?.Ten</td>
+                    </tr>
+
+                    <tr>
+                        <th>Thương hiệu</th>
+                        <td>@Model.MaThNavigation?.Ten</td>
+                    </tr>
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="mt-4 d-flex gap-3">
+
+        <a asp-action="Edit" asp-route-id="@Model.MaMh"
+           class="btn btn-warning">
+            <i class="fa fa-edit"></i> Cập nhật
+        </a>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Quay lại danh sách
+        </a>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">

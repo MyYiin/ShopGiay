@@ -1,0 +1,82 @@
+﻿@model IEnumerable<ShopGiay.Models.Mathang>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_LayoutAdmin";
+}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Danh sách sản phẩm</h2>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fa fa-plus"></i> Thêm sản phẩm mới
+        </a>
+    </div>
+    <table class="table">
+        <thead class="table-info">
+            <tr>
+                <th style="width: 15%">Tên sản phẩm</th>
+                <th style="width: 8%">Giá gốc</th>
+                <th style="width: 8%">Giá bán</th>
+                <th style="width: 10%">Hình ảnh</th>
+                <th style="width: 8%">Lượt xem</th>
+                <th style="width: 8%">Lượt mua</th>
+                <th style="width: 14%">Loại giày</th>
+                <th style="width: 14%">Thương hiệu</th>
+                <th style="width: 10%" class="text-center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ten)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.GiaGoc)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.GiaBan)
+                </td>
+                <td>
+                        @if (!string.IsNullOrEmpty(item.HinhAnh))
+                        {
+                            <img src="~/images/products/@item.HinhAnh" alt="@item.Ten" style="max-width: 80px; max-height: 80px;" class="img-thumbnail" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">Chưa có hình</span>
+                        }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LuotXem)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LuotMua)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaLgNavigation.Ten)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaThNavigation.Ten)
+                </td>
+                    <td class="align-middle">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a asp-action="Edit" asp-route-id="@item.MaMh" class="btn btn-warning icon-btn" title="Sửa">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a asp-action="Details" asp-route-id="@item.MaMh" class="btn btn-info text-white icon-btn" title="Chi tiết">
+                                <i class="fa fa-eye"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.MaMh" class="btn btn-danger icon-btn" title="Xóa">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                    
+            </tr>
+    }
+        </tbody>
+    </table>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">

@@ -1,0 +1,72 @@
+﻿@model IEnumerable<ShopGiay.Models.Tonkho>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_LayoutAdmin";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Sku)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SoLuongTonKho)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GiaGocBt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GiaBanBt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MaKcNavigation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MaMhNavigation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MaMsNavigation)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Sku)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SoLuongTonKho)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GiaGocBt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GiaBanBt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MaKcNavigation.GiaTriKc)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MaMhNavigation.Ten)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MaMsNavigation.Ten)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.MaK">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.MaK">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.MaK">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

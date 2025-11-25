@@ -1,0 +1,125 @@
+﻿@model ShopGiay.Models.Mathang
+
+@{
+    ViewData["Title"] = "Cập nhật sản phẩm";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container mt-4">
+
+    <h2 class="fw-bold mb-3">Cập nhật sản phẩm</h2>
+
+    <div class="card shadow-sm p-4">
+
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <input type="hidden" asp-for="MaMh" />
+
+            <div class="row">
+                <!-- Cột trái: Input -->
+                <div class="col-md-7">
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Ten" class="form-label fw-semibold">Tên sản phẩm</label>
+                        <input asp-for="Ten" class="form-control" />
+                        <span asp-validation-for="Ten" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MoTa" class="form-label fw-semibold">Mô tả</label>
+                        <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="MoTa" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="GiaGoc" class="form-label fw-semibold">Giá gốc</label>
+                            <input asp-for="GiaGoc" class="form-control" />
+                            <span asp-validation-for="GiaGoc" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="GiaBan" class="form-label fw-semibold">Giá bán</label>
+                            <input asp-for="GiaBan" class="form-control" />
+                            <span asp-validation-for="GiaBan" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MaLg" class="form-label fw-semibold">Loại giày</label>
+                            <select asp-for="MaLg" class="form-select" asp-items="ViewBag.MaLg"></select>
+                            <span asp-validation-for="MaLg" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MaTh" class="form-label fw-semibold">Thương hiệu</label>
+                            <select asp-for="MaTh" class="form-select" asp-items="ViewBag.MaTh"></select>
+                            <span asp-validation-for="MaTh" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Hình ảnh sản phẩm</label>
+                        <input type="file" asp-for="HinhAnh" class="form-control" />
+                        <span asp-validation-for="HinhAnh" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LuotXem" class="form-label fw-semibold">Lượt xem</label>
+                            <input asp-for="LuotXem" class="form-control" />
+                            <span asp-validation-for="LuotXem" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LuotMua" class="form-label fw-semibold">Lượt mua</label>
+                            <input asp-for="LuotMua" class="form-control" />
+                            <span asp-validation-for="LuotMua" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-save"></i> Lưu thay đổi
+                        </button>
+
+                        <a asp-action="Index" class="btn btn-secondary ms-2">
+                            <i class="fa fa-arrow-left"></i> Quay lại danh sách
+                        </a>
+                    </div>
+
+                </div>
+
+                <!-- Cột phải: Hình ảnh preview -->
+                <div class="col-md-5 text-center">
+                    <h6 class="fw-semibold mb-3">Hình hiện tại</h6>
+
+                    @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                    {
+                        <img src="~/images/products/@Model.HinhAnh"
+                             class="img-fluid border rounded"
+                             style="max-height: 280px; object-fit: contain;" />
+                    }
+                    else
+                    {
+                        <div class="text-muted fst-italic mt-5">Không có hình</div>
+                    }
+                </div>
+
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

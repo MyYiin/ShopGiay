@@ -1,0 +1,65 @@
+﻿@model ShopGiay.Models.Tonkho
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "_LayoutAdmin";
+}
+
+<h1>Edit</h1>
+
+<h4>Tonkho</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="MaK" />
+            <div class="form-group">
+                <label asp-for="MaMh" class="control-label"></label>
+                <select asp-for="MaMh" class="form-control" asp-items="ViewBag.MaMh"></select>
+                <span asp-validation-for="MaMh" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaMs" class="control-label"></label>
+                <select asp-for="MaMs" class="form-control" asp-items="ViewBag.MaMs"></select>
+                <span asp-validation-for="MaMs" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaKc" class="control-label"></label>
+                <select asp-for="MaKc" class="form-control" asp-items="ViewBag.MaKc"></select>
+                <span asp-validation-for="MaKc" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Sku" class="control-label"></label>
+                <input asp-for="Sku" class="form-control" />
+                <span asp-validation-for="Sku" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SoLuongTonKho" class="control-label"></label>
+                <input asp-for="SoLuongTonKho" class="form-control" />
+                <span asp-validation-for="SoLuongTonKho" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GiaGocBt" class="control-label"></label>
+                <input asp-for="GiaGocBt" class="form-control" />
+                <span asp-validation-for="GiaGocBt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GiaBanBt" class="control-label"></label>
+                <input asp-for="GiaBanBt" class="form-control" />
+                <span asp-validation-for="GiaBanBt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

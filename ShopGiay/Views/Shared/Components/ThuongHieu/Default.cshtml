@@ -1,0 +1,13 @@
+﻿@model IEnumerable<ShopGiay.Models.Thuonghieu>
+
+@foreach (var item in Model)
+{
+    <li>
+        <a class="dropdown-item"
+           asp-controller="Mathangs"
+           asp-action="TheoThuongHieu"
+           asp-route-id="@item.MaTh">
+            @item.Ten
+        </a>
+    </li>
+}

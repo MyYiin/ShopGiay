@@ -1,0 +1,46 @@
+﻿@model ShopGiay.Models.Tonkho
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "_LayoutAdmin";
+}
+
+<h1>Create</h1>
+
+<h4>Tonkho</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="MaMh" class="control-label"></label>
+                <select asp-for="MaMh" class ="form-control" asp-items="ViewBag.MaMh"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaMs" class="control-label"></label>
+                <select asp-for="MaMs" class ="form-control" asp-items="ViewBag.MaMs"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaKc" class="control-label"></label>
+                <select asp-for="MaKc" class ="form-control" asp-items="ViewBag.MaKc"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Sku" class="control-label"></label>
+                <input asp-for="Sku" class="form-control" />
+                <span asp-validation-for="Sku" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

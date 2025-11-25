@@ -1,0 +1,62 @@
+﻿@model IEnumerable<ShopGiay.Models.Khachhang>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Danh sách khách hàng</h2>
+    </div>
+
+    <table class="table">
+        <thead class="table-info">
+            <tr>
+                <th style="width: 15%">
+                    @Html.DisplayNameFor(model => model.Ten)
+                </th>
+                <th style="width: 8%">
+                    @Html.DisplayNameFor(model => model.DienThoai)
+                </th>
+                <th style="width: 8%">
+                    @Html.DisplayNameFor(model => model.Email)
+                </th>
+                <th style="width: 10%" class="text-center">
+                    Thao tác
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+    @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ten)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DienThoai)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                    <td class="align-middle">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a asp-action="Edit" asp-route-id="@item.MaKh" class="btn btn-warning icon-btn" title="Sửa">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a asp-action="Details" asp-route-id="@item.MaKh" class="btn btn-info text-white icon-btn" title="Chi tiết">
+                                <i class="fa fa-eye"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.MaKh" class="btn btn-danger icon-btn" title="Xóa">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+            </tr>
+    }
+        </tbody>
+    </table>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+

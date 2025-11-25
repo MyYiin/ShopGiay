@@ -1,0 +1,134 @@
+﻿@model ShopGiay.Models.Mathang
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+    // Lấy danh sách tồn kho còn số lượng > 0
+    var tonkhos = Model.Tonkhos.Where(t => t.SoLuongTonKho > 0).ToList();
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- ẢNH SẢN PHẨM -->
+        <div class="col-md-5 text-center">
+            <img src="~/images/products/@Model.HinhAnh" class="img-fluid rounded shadow" style="max-height: 380px;" />
+        </div>
+
+        <!-- THÔNG TIN SẢN PHẨM -->
+        <div class="col-md-7">
+            <h2 class="fw-bold">@Model.Ten</h2>
+
+            <div class="mb-3">
+                <span class="text-muted" style="text-decoration: line-through; color:red !important;">
+                    @String.Format("{0:N0}", Model.GiaGoc) VNĐ
+                </span>
+                <span class="ms-3 text-danger fw-bold" style="font-size: 1.8rem;">
+                    @String.Format("{0:N0}", Model.GiaBan) VNĐ
+                </span>
+            </div>
+
+            <p class="mt-3 text-secondary">
+                @Model.MoTa
+            </p>
+
+            <table class="table table-borderless mt-4">
+                <tr><th>Loại giày:</th><td>@Model.MaLgNavigation?.Ten</td></tr>
+                <tr><th>Thương hiệu:</th><td>@Model.MaThNavigation?.Ten</td></tr>
+                <tr><th>Lượt xem:</th><td>@Model.LuotXem</td></tr>
+                <tr><th>Lượt mua:</th><td>@Model.LuotMua</td></tr>
+            </table>
+
+            <div class="mt-4">
+                @if (tonkhos.Count == 0)
+                {
+                    <p class="text-danger">Sản phẩm hiện hết hàng.</p>
+                }
+                else
+                {
+                    <form id="addToCartForm" asp-controller="Customers" asp-action="AddToCart" method="post">
+                        <!-- Chọn màu -->
+                        <div class="mb-2">
+                            <label for="mauSacSelect"><strong>Chọn màu:</strong></label>
+                            <select id="mauSacSelect" name="maMs" class="form-select">
+                                @foreach (var ms in tonkhos.Select(t => t.MaMsNavigation.Ten).Distinct())
+                                {
+                                    <option value="@tonkhos.First(t => t.MaMsNavigation.Ten == ms).MaMs">@ms</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Chọn size -->
+                        <div class="mb-2">
+                            <label for="kichCoSelect"><strong>Chọn size:</strong></label>
+                            <select id="kichCoSelect" name="maKc" class="form-select">
+                                @foreach (var kc in tonkhos.Select(t => t.MaKcNavigation).Distinct())
+                                {
+                                    <option value="@kc.MaKc">@kc.GiaTriKc</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Hidden input tonkhoId -->
+                        <input type="hidden" id="tonkhoIdInput" name="tonkhoId" value="@tonkhos.First().MaK" />
+                        <input type="hidden" name="quantity" value="1" />
+
+                        <a asp-controller="Customers"
+                           asp-action="AddToCart"
+                           asp-route-id="@Model.MaMh"
+                           class="btn btn-success btn-sm">
+                            Thêm giỏ hàng
+                        </a>
+                    </form>
+                }
+            </div>
+
+            <div class="mt-3">
+                <a asp-controller="Customers" asp-action="Index" class="btn btn-outline-secondary px-4">
+                    Trở về cửa hàng
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MÔ TẢ CHI TIẾT -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h4 class="fw-bold">Mô tả chi tiết</h4>
+            <p class="text-secondary">@Model.MoTa</p>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPT CẬP NHẬT TONKHOID -->
+<script>
+    const tonkhos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.Tonkhos.Where(t => t.SoLuongTonKho > 0)
+                     .Select(t => new { t.MaK, t.MaMs, t.MaKc })
+    ));
+
+    const mauSelect = document.getElementById("mauSacSelect");
+    const kichSelect = document.getElementById("kichCoSelect");
+    const tonkhoInput = document.getElementById("tonkhoIdInput");
+    const form = document.getElementById("addToCartForm");
+
+    function updateTonkhoId() {
+        const selectedMau = parseInt(mauSelect.value);
+        const selectedKc = parseInt(kichSelect.value);
+        const tk = tonkhos.find(t => t.MaMs === selectedMau && t.MaKc === selectedKc);
+        tonkhoInput.value = tk ? tk.MaK : 0;
+    }
+
+    // Cập nhật khi chọn dropdown
+    mauSelect.addEventListener("change", updateTonkhoId);
+    kichSelect.addEventListener("change", updateTonkhoId);
+
+    // Cập nhật trước khi submit
+    form.addEventListener("submit", function() {
+        updateTonkhoId();
+        if (tonkhoInput.value == 0) {
+            alert("Sản phẩm không tồn tại trong kho với màu/size này.");
+            event.preventDefault();
+        }
+    });
+
+    // Khởi tạo lần đầu
+    updateTonkhoId();
+</script>

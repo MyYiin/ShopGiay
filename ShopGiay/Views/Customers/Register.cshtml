@@ -1,0 +1,41 @@
+﻿@{
+    ViewData["Title"] = "Đăng ký tài khoản";
+}
+<div class="row">
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4">
+        <div class="p-3 shadow">
+            <h3 class="text-center text-info">ĐĂNG KÝ TÀI KHOẢN</h3>
+            <form method="post" asp-action="Register">
+
+                <div class="my-3">
+                    <label>Email</label>
+                    <input class="form-control" type="email" name="email"
+                           placeholder="Nhập email" required>
+                </div>
+                <div class="my-3">
+                    <label>Mật khẩu</label>
+                    <input class="form-control" type="password" name="matkhau"
+                           placeholder="Mật khẩu" required>
+                </div>
+                <div class="my-3">
+                    <label>Họ tên</label>
+                    <input class="form-control" type="text" name="hoten"
+                           placeholder="Nhập họ tên" required>
+                </div>
+                <div class="my-3">
+                    <label>Số điện thoại</label>
+                    <input class="form-control" type="text" name="dienthoai"
+                           placeholder="Nhập số điện thoại" required>
+                </div>
+                <br>
+                <div class="d-grid">
+                    <input class="btn btn-info btn-block" type="submit"
+                           value="Đăng ký">
+                </div>
+            </form>
+
+        </div>
+    </div>
+    <div class="col-sm-4"></div>
+</div> 

@@ -1,0 +1,212 @@
+﻿@model IEnumerable<ShopGiay.Models.Hoadon>
+
+@{
+    ViewData["Title"] = "Trang Quản Trị";
+}
+
+
+<div class="container-fluid">
+    <h2 class="mb-4">Dashboard - Tổng Quan Hệ Thống</h2>
+
+    <!-- Thống kê tổng quan -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-uppercase">Sản phẩm</h6>
+                            <h2 class="mb-0">@ViewBag.TongSanPham</h2>
+                        </div>
+                        <div>
+                            <i class="bi bi-box-seam" style="font-size: 3rem; opacity: 0.5;"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white bg-opacity-25">
+                    <a asp-controller="Mathangs" asp-action="Index" class="text-white text-decoration-none">
+                        <small>Xem chi tiết <i class="bi bi-arrow-right"></i></small>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-uppercase">Đơn hàng</h6>
+                            <h2 class="mb-0">@ViewBag.TongHoaDon</h2>
+                        </div>
+                        <div>
+                            <i class="bi bi-cart-check" style="font-size: 3rem; opacity: 0.5;"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white bg-opacity-25">
+                    <a asp-controller="Hoadons" asp-action="Index" class="text-white text-decoration-none">
+                        <small>Xem chi tiết <i class="bi bi-arrow-right"></i></small>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-uppercase">Khách hàng</h6>
+                            <h2 class="mb-0">@ViewBag.TongKhachHang</h2>
+                        </div>
+                        <div>
+                            <i class="bi bi-people" style="font-size: 3rem; opacity: 0.5;"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white bg-opacity-25">
+                    <small>Tổng khách hàng đã đăng ký</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-uppercase">Doanh thu</h6>
+                            <h2 class="mb-0">@ViewBag.TongDoanhThu.ToString("N0")</h2>
+                        </div>
+                        <div>
+                            <i class="bi bi-currency-dollar" style="font-size: 3rem; opacity: 0.5;"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white bg-opacity-25">
+                    <small>Tổng doanh thu (VNĐ)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu quản trị -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0 text-white"><i class="bi bi-grid-3x3-gap"></i> Quản Lý Hệ Thống</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Mathangs" asp-action="Index" class="btn btn-outline-primary w-100 py-3">
+                                <i class="bi bi-box-seam fs-3 d-block mb-2"></i>
+                                <strong>Quản lý Sản phẩm</strong>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Loaigiays" asp-action="Index" class="btn btn-outline-success w-100 py-3">
+                                <i class="bi bi-tags fs-3 d-block mb-2"></i>
+                                <strong>Quản lý Loại Giày</strong>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Thuonghieus" asp-action="Index" class="btn btn-outline-success w-100 py-3">
+                                <i class="bi bi-tags fs-3 d-block mb-2"></i>
+                                <strong>Quản lý Thương Hiệu</strong>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Hoadons" asp-action="Index" class="btn btn-outline-info w-100 py-3">
+                                <i class="bi bi-receipt fs-3 d-block mb-2"></i>
+                                <strong>Quản lý Đơn hàng</strong>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Nhanviens" asp-action="Index" class="btn btn-outline-warning w-100 py-3">
+                                <i class="bi bi-person-badge fs-3 d-block mb-2"></i>
+                                <strong>Quản lý Nhân viên</strong>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Tonkhos" asp-action="Index" class="btn btn-outline-warning w-100 py-3">
+                                <i class="bi bi-person-badge fs-3 d-block mb-2"></i>
+                                <strong>Tồn Kho</strong>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Đơn hàng gần đây -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-secondary ">
+                    <h5 class="mb-0 text-white"><i class="bi bi-clock-history"></i> Đơn Hàng Gần Đây</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Mã HĐ</th>
+                                        <th>Ngày</th>
+                                        <th>Khách hàng</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var hd in Model)
+                                    {
+                                        <tr>
+                                            <td><strong>#@hd.MaHd</strong></td>
+                                            <td>@hd.Ngay?.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@hd.MaKhNavigation?.Ten</td>
+                                            <td><strong class="text-danger">@hd.TongTien?.ToString("N0") đ</strong></td>
+                                            <td>
+                                                @if (hd.TrangThai == 1)
+                                                {
+                                                    <span class="badge bg-success">Đã thanh toán</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">Chờ xử lý</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a asp-controller="Hoadons" asp-action="Details" asp-route-id="@hd.MaHd"
+                                                   class="btn btn-sm btn-info">
+                                                    <i class="bi bi-eye"></i> Xem
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle"></i> Chưa có đơn hàng nào
+                        </div>
+                    }
+                </div>
+                <div class="card-footer">
+                    <a asp-controller="Hoadons" asp-action="Index" class="btn btn-primary">
+                        Xem tất cả đơn hàng <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
