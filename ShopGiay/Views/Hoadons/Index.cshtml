@@ -104,23 +104,67 @@
 </table>
 
 
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fa fa-check-circle me-2"></i>
+                <span id="successMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+    <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fa fa-exclamation-circle me-2"></i>
+                <span id="errorMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        function showToast(message, isSuccess) {
+            const toastId = isSuccess ? 'successToast' : 'errorToast';
+            const messageId = isSuccess ? 'successMessage' : 'errorMessage';
+
+            document.getElementById(messageId).textContent = message;
+            const toast = new bootstrap.Toast(document.getElementById(toastId));
+            toast.show();
+        }
+
         function changeStatus(orderId, status) {
             if (!confirm("Bạn chắc chắn muốn đổi trạng thái?")) return;
 
-            fetch('@Url.Action("ChangeStatus")', {
+            console.log('Changing status:', { orderId, status });
+
+            const token = document.querySelector("input[name='__RequestVerificationToken']").value;
+
+            fetch('@Url.Action("ChangeStatus", "Hoadons")', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector("input[name='__RequestVerificationToken']").value
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: JSON.stringify({ id: orderId, trangThai: status })
+                body: `id=${orderId}&trangThai=${status}&__RequestVerificationToken=${encodeURIComponent(token)}`
             })
-            .then(res => res.json())
+            .then(res => {
+                console.log('Response status:', res.status);
+                return res.json();
+            })
             .then(data => {
-                alert(data.message);
-                if (data.success) location.reload();
+                console.log('Response data:', data);
+                showToast(data.message, data.success);
+                if (data.success) {
+                    setTimeout(() => location.reload(), 1500);
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                showToast('Có lỗi xảy ra: ' + err.message, false);
             });
         }
 
@@ -128,18 +172,31 @@
             const reason = prompt("Nhập lý do hủy:");
             if (!reason) return;
 
-            fetch('@Url.Action("CancelOrder")', {
+            console.log('Canceling order:', { orderId, reason });
+
+            const token = document.querySelector("input[name='__RequestVerificationToken']").value;
+
+            fetch('@Url.Action("CancelOrder", "Hoadons")', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector("input[name='__RequestVerificationToken']").value
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: JSON.stringify({ id: orderId, reason: reason })
+                body: `id=${orderId}&reason=${encodeURIComponent(reason)}&__RequestVerificationToken=${encodeURIComponent(token)}`
             })
-            .then(res => res.json())
+            .then(res => {
+                console.log('Response status:', res.status);
+                return res.json();
+            })
             .then(data => {
-                alert(data.message);
-                if (data.success) location.reload();
+                console.log('Response data:', data);
+                showToast(data.message, data.success);
+                if (data.success) {
+                    setTimeout(() => location.reload(), 1500);
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                showToast('Có lỗi xảy ra: ' + err.message, false);
             });
         }
     </script>
