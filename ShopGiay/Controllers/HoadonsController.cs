@@ -66,6 +66,7 @@ namespace ShopGiay.Controllers
         // 3. ĐỔI TRẠNG THÁI (AJAX)
         // ====================================================
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeStatus(int id, int trangThai)
         {
             var hoadon = await _context.Hoadons.FindAsync(id);
@@ -91,6 +92,7 @@ namespace ShopGiay.Controllers
         // 4. HỦY ĐƠN (AJAX) – hoàn trả tồn kho
         // ====================================================
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CancelOrder(int id, string reason)
         {
             var hoadon = await _context.Hoadons
