@@ -74,7 +74,7 @@ namespace ShopGiay.Controllers
                 return Json(new { success = false, message = "Không tìm thấy đơn hàng" });
             }
 
-            if (!IsValidStatusChange(Hoadons.TrangThai, trangThai))
+            if (!IsValidStatusChange(hoadon.TrangThai, trangThai))
             {
                 return Json(new { success = false, message = "Không thể chuyển sang trạng thái này" });
             }
