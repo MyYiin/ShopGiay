@@ -58,6 +58,9 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // PHẢI GỌI base.OnModelCreating TRƯỚC để cấu hình Identity tables
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Chucvu>(entity =>
         {
             entity.HasKey(e => e.MaCv).HasName("PK__CHUCVU__27258E765E11D519");
