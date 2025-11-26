@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ShopGiay.Models;
 
 [Table("DIACHI")]
+[Index("MaKh", Name = "IX_DIACHI_MaKH")]
 public partial class Diachi
 {
     [Key]

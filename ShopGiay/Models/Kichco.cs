@@ -18,5 +18,8 @@ public partial class Kichco
     public double GiaTriKc { get; set; }
 
     [InverseProperty("MaKcNavigation")]
+    public virtual ICollection<Cthoadon> Cthoadons { get; set; } = new List<Cthoadon>();
+
+    [InverseProperty("MaKcNavigation")]
     public virtual ICollection<Tonkho> Tonkhos { get; set; } = new List<Tonkho>();
 }

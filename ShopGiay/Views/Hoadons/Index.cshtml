@@ -5,49 +5,138 @@
     Layout = "_LayoutAdmin";
 }
 
-<h1>Index</h1>
+<h2>Danh sách hóa đơn</h2>
 
-
-<table class="table">
+<table class="table table-striped">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Ngay)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TongTien)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaKhNavigation)
-            </th>
-
-            <th></th>
+            <th>Ngày</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Khách hàng</th>
+            <th>Thao tác</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Ngay)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TongTien)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MaKhNavigation.MaKh)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaHd">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaHd">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaHd">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Ngay?.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@item.TongTien?.ToString("N0") đ</td>
+
+                <td>
+                    @switch (item.TrangThai)
+                    {
+                        case ShopGiay.Enums.Status.ChoXuLy:
+                            <span class="badge bg-warning">Chờ xử lý</span>
+                            ;
+                            break;
+
+                        case ShopGiay.Enums.Status.DaXacNhan:
+                            <span class="badge bg-info text-dark">Đã xác nhận</span>
+                            ;
+                            break;
+
+                        case ShopGiay.Enums.Status.DangGiaoHang:
+                            <span class="badge bg-primary">Đang giao hàng</span>
+                            ;
+                            break;
+
+                        case ShopGiay.Enums.Status.HoanThanh:
+                            <span class="badge bg-success">Hoàn thành</span>
+                            ;
+                            break;
+
+                        case ShopGiay.Enums.Status.DaHuy:
+                            <span class="badge bg-danger">Đã hủy</span>
+                            ;
+                            break;
+                    }
+                </td>
+
+                <td>@item.MaKhNavigation?.Ten</td>
+
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.MaHd" class="btn btn-sm btn-info">Chi tiết</a>
+
+                    @* ===========================
+                       NÚT CHUYỂN TRẠNG THÁI
+                       =========================== *@
+                    @if (item.TrangThai == ShopGiay.Enums.Status.ChoXuLy)
+                    {
+                        <button class="btn btn-sm btn-success"
+                                onclick="changeStatus(@item.MaHd, 1)">
+                            Xác nhận
+                        </button>
+
+                        <button class="btn btn-sm btn-danger"
+                                onclick="cancelOrder(@item.MaHd)">
+                            Hủy
+                        </button>
+                    }
+                    else if (item.TrangThai == ShopGiay.Enums.Status.DaXacNhan)
+                    {
+                        <button class="btn btn-sm btn-primary"
+                                onclick="changeStatus(@item.MaHd, 2)">
+                            Giao hàng
+                        </button>
+
+                        <button class="btn btn-sm btn-danger"
+                                onclick="cancelOrder(@item.MaHd)">
+                            Hủy
+                        </button>
+                    }
+                    else if (item.TrangThai == ShopGiay.Enums.Status.DangGiaoHang)
+                    {
+                        <button class="btn btn-sm btn-success"
+                                onclick="changeStatus(@item.MaHd, 3)">
+                            Hoàn thành
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+
+@section Scripts {
+    <script>
+        function changeStatus(orderId, status) {
+            if (!confirm("Bạn chắc chắn muốn đổi trạng thái?")) return;
+
+            fetch('@Url.Action("ChangeStatus")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector("input[name='__RequestVerificationToken']").value
+                },
+                body: JSON.stringify({ id: orderId, trangThai: status })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) location.reload();
+            });
+        }
+
+        function cancelOrder(orderId) {
+            const reason = prompt("Nhập lý do hủy:");
+            if (!reason) return;
+
+            fetch('@Url.Action("CancelOrder")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector("input[name='__RequestVerificationToken']").value
+                },
+                body: JSON.stringify({ id: orderId, reason: reason })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) location.reload();
+            });
+        }
+    </script>
+}

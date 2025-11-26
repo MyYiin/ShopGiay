@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ShopGiay.Models;
 
 [Table("DANHGIA")]
+[Index("MaMh", Name = "IX_DANHGIA_MaMh")]
 [Index("MaKh", "MaMh", Name = "UQ__DANHGIA__A55792EC175A939E", IsUnique = true)]
 public partial class Danhgium
 {

@@ -28,7 +28,7 @@ namespace ShopGiay.Controllers
             ViewBag.TongHoaDon = await _context.Hoadons.CountAsync();
             ViewBag.TongDoanhThu = await _context.Hoadons.SumAsync(h => h.TongTien ?? 0);
 
-            // Danh sách ??n hàng g?n ?ây
+            // Danh sách don  hàng gan day
             var hoaDonGanDay = await _context.Hoadons
                 .Include(h => h.MaKhNavigation)
                 .OrderByDescending(h => h.Ngay)

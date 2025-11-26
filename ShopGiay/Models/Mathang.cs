@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 namespace ShopGiay.Models;
 
 [Table("MATHANG")]
+[Index("MaLg", Name = "IX_MATHANG_MaLG")]
+[Index("MaTh", Name = "IX_MATHANG_MaTH")]
 public partial class Mathang
 {
     [Key]

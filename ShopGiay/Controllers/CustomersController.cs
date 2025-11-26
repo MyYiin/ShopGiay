@@ -468,7 +468,7 @@ namespace ShopGiay.Controllers
                 {
                     MaKh = kh.MaKh,
                     Ngay = DateTime.Now,
-                    TrangThai = 1 // Đã thanh toán
+                    TrangThai = 0  // Đổi từ 1 thành 0 (Chờ xử lý)
                 };
                 _context.Add(hd);
                 await _context.SaveChangesAsync();

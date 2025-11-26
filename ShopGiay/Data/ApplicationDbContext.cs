@@ -47,17 +47,13 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
     public virtual DbSet<Tonkho> Tonkhos { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        // Chỉ dùng connection string này nếu chưa được cấu hình từ Program.cs
-        if (!optionsBuilder.IsConfigured)
-        {
-            // Fallback connection string - thường không dùng đến vì đã config trong Program.cs
-            optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=shop_giay;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
-        }
-    }
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=LAPTOP-A17NC8EA\\MSSQLMD1226;Initial Catalog=shop_giay;User ID=sa;Password=md1226;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+        
         modelBuilder.Entity<Chucvu>(entity =>
         {
             entity.HasKey(e => e.MaCv).HasName("PK__CHUCVU__27258E765E11D519");
@@ -125,7 +121,6 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
             entity.HasOne(d => d.MaKhNavigation).WithMany(p => p.Hoadons)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__HOADON__MaKH__619B8048");
- 
         });
 
         modelBuilder.Entity<Khachhang>(entity =>
@@ -184,6 +179,10 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
         {
             entity.HasKey(e => e.MaK).HasName("PK__TONKHO__C7977BADD28F2A89");
 
+            entity.HasIndex(e => e.Sku, "UQ__TONKHO__CA1ECF0D1F5F9D69")
+                .IsUnique()
+                .HasFilter("([SKU] IS NOT NULL)");
+
             entity.Property(e => e.GiaBanBt).HasDefaultValue(0);
             entity.Property(e => e.GiaGocBt).HasDefaultValue(0);
             entity.Property(e => e.SoLuongTonKho).HasDefaultValue((short)0);
@@ -198,7 +197,7 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__TONKHO__MaMS__4D94879B");
         });
-        base.OnModelCreating(modelBuilder);
+
         OnModelCreatingPartial(modelBuilder);
     }
 

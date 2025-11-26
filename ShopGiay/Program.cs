@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+Ôªøusing Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShopGiay.Data;
 using ShopGiay.Models;
@@ -22,14 +22,14 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// ------------ HASH PASSWORD CHO KH¡CH H¿NG ------------
+// ------------ HASH PASSWORD CHO KH√ÅCH H√ÄNG ------------
 builder.Services.AddSingleton<IPasswordHasher<Khachhang>, PasswordHasher<Khachhang>>();
 ;
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-// Session cho gi? h‡ng + login kh·ch h‡ng
+// Session cho gi? h√†ng + login kh√°ch h√†ng
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -74,7 +74,7 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

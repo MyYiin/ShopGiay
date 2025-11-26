@@ -7,6 +7,11 @@ using Microsoft.EntityFrameworkCore;
 namespace ShopGiay.Models;
 
 [Table("CTHOADON")]
+[Index("MaHd", Name = "IX_CTHOADON_MaHD")]
+[Index("MaK", Name = "IX_CTHOADON_MaK")]
+[Index("MaKc", Name = "IX_CTHOADON_MaKc")]
+[Index("MaMh", Name = "IX_CTHOADON_MaMh")]
+[Index("MaMs", Name = "IX_CTHOADON_MaMs")]
 public partial class Cthoadon
 {
     [Key]
@@ -19,8 +24,6 @@ public partial class Cthoadon
     public int MaK { get; set; }
 
     public int MaMh { get; set; }
-    public int MaMs { get; set; }
-    public int MaKc { get; set; }
 
     public int? DonGia { get; set; }
 
@@ -28,11 +31,10 @@ public partial class Cthoadon
 
     public int? ThanhTien { get; set; }
 
-    [ForeignKey("MaMs")]
-    public virtual Mausac MaMsNavigation { get; set; }
+    public int MaKc { get; set; }
 
-    [ForeignKey("MaKc")]
-    public virtual Kichco MaKcNavigation { get; set; }
+    public int MaMs { get; set; }
+
     [ForeignKey("MaHd")]
     [InverseProperty("Cthoadons")]
     public virtual Hoadon MaHdNavigation { get; set; } = null!;
@@ -41,7 +43,15 @@ public partial class Cthoadon
     [InverseProperty("Cthoadons")]
     public virtual Tonkho MaKNavigation { get; set; } = null!;
 
+    [ForeignKey("MaKc")]
+    [InverseProperty("Cthoadons")]
+    public virtual Kichco MaKcNavigation { get; set; } = null!;
+
     [ForeignKey("MaMh")]
     [InverseProperty("Cthoadons")]
     public virtual Mathang MaMhNavigation { get; set; } = null!;
+
+    [ForeignKey("MaMs")]
+    [InverseProperty("Cthoadons")]
+    public virtual Mausac MaMsNavigation { get; set; } = null!;
 }

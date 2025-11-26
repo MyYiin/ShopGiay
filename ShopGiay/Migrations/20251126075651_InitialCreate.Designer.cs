@@ -9,11 +9,11 @@ using ShopGiay.Data;
 
 #nullable disable
 
-namespace ShopGiay.Data.Migrations
+namespace ShopGiay.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251124133933_RemoveNvRelation")]
-    partial class RemoveNvRelation
+    [Migration("20251126075651_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -269,7 +269,13 @@ namespace ShopGiay.Data.Migrations
                     b.Property<int>("MaK")
                         .HasColumnType("int");
 
+                    b.Property<int>("MaKc")
+                        .HasColumnType("int");
+
                     b.Property<int>("MaMh")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaMs")
                         .HasColumnType("int");
 
                     b.Property<short?>("SoLuong")
@@ -283,11 +289,15 @@ namespace ShopGiay.Data.Migrations
                     b.HasKey("MaCthd")
                         .HasName("PK__CTHOADON__1E4FA771F512215C");
 
-                    b.HasIndex("MaHd");
+                    b.HasIndex(new[] { "MaHd" }, "IX_CTHOADON_MaHD");
 
-                    b.HasIndex("MaK");
+                    b.HasIndex(new[] { "MaK" }, "IX_CTHOADON_MaK");
 
-                    b.HasIndex("MaMh");
+                    b.HasIndex(new[] { "MaKc" }, "IX_CTHOADON_MaKc");
+
+                    b.HasIndex(new[] { "MaMh" }, "IX_CTHOADON_MaMh");
+
+                    b.HasIndex(new[] { "MaMs" }, "IX_CTHOADON_MaMs");
 
                     b.ToTable("CTHOADON");
                 });
@@ -352,7 +362,7 @@ namespace ShopGiay.Data.Migrations
                     b.HasKey("MaDg")
                         .HasName("PK__DANHGIA__27258660CC45A924");
 
-                    b.HasIndex("MaMh");
+                    b.HasIndex(new[] { "MaMh" }, "IX_DANHGIA_MaMh");
 
                     b.HasIndex(new[] { "MaKh", "MaMh" }, "UQ__DANHGIA__A55792EC175A939E")
                         .IsUnique();
@@ -399,7 +409,7 @@ namespace ShopGiay.Data.Migrations
                     b.HasKey("MaDc")
                         .HasName("PK__DIACHI__2725866443F55466");
 
-                    b.HasIndex("MaKh");
+                    b.HasIndex(new[] { "MaKh" }, "IX_DIACHI_MaKH");
 
                     b.ToTable("DIACHI");
                 });
@@ -435,7 +445,7 @@ namespace ShopGiay.Data.Migrations
                     b.HasKey("MaHd")
                         .HasName("PK__HOADON__2725A6E002FDC379");
 
-                    b.HasIndex("MaKh");
+                    b.HasIndex(new[] { "MaKh" }, "IX_HOADON_MaKH");
 
                     b.ToTable("HOADON");
                 });
@@ -572,9 +582,9 @@ namespace ShopGiay.Data.Migrations
                     b.HasKey("MaMh")
                         .HasName("PK__MATHANG__2725DF398F26F1C4");
 
-                    b.HasIndex("MaLg");
+                    b.HasIndex(new[] { "MaLg" }, "IX_MATHANG_MaLG");
 
-                    b.HasIndex("MaTh");
+                    b.HasIndex(new[] { "MaTh" }, "IX_MATHANG_MaTH");
 
                     b.ToTable("MATHANG");
                 });
@@ -640,7 +650,7 @@ namespace ShopGiay.Data.Migrations
                     b.HasKey("MaNv")
                         .HasName("PK__NHANVIEN__2725D70AA0F35AFF");
 
-                    b.HasIndex("MaCv");
+                    b.HasIndex(new[] { "MaCv" }, "IX_NHANVIEN_MaCV");
 
                     b.ToTable("NHANVIEN");
                 });
@@ -713,16 +723,16 @@ namespace ShopGiay.Data.Migrations
                     b.HasKey("MaK")
                         .HasName("PK__TONKHO__C7977BADD28F2A89");
 
-                    b.HasIndex("MaKc");
+                    b.HasIndex(new[] { "MaKc" }, "IX_TONKHO_MaKC");
 
-                    b.HasIndex("MaMs");
+                    b.HasIndex(new[] { "MaMs" }, "IX_TONKHO_MaMS");
 
                     b.HasIndex(new[] { "MaMh", "MaMs", "MaKc" }, "UQ__TONKHO__5770A70A3C9A8A51")
                         .IsUnique();
 
                     b.HasIndex(new[] { "Sku" }, "UQ__TONKHO__CA1ECF0D1F5F9D69")
                         .IsUnique()
-                        .HasFilter("[SKU] IS NOT NULL");
+                        .HasFilter("([SKU] IS NOT NULL)");
 
                     b.ToTable("TONKHO");
                 });
@@ -792,17 +802,33 @@ namespace ShopGiay.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("FK__CTHOADON__MaK__6754599E");
 
+                    b.HasOne("ShopGiay.Models.Kichco", "MaKcNavigation")
+                        .WithMany("Cthoadons")
+                        .HasForeignKey("MaKc")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ShopGiay.Models.Mathang", "MaMhNavigation")
                         .WithMany("Cthoadons")
                         .HasForeignKey("MaMh")
                         .IsRequired()
                         .HasConstraintName("FK__CTHOADON__MaMh__68487DD7");
 
+                    b.HasOne("ShopGiay.Models.Mausac", "MaMsNavigation")
+                        .WithMany("Cthoadons")
+                        .HasForeignKey("MaMs")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("MaHdNavigation");
 
                     b.Navigation("MaKNavigation");
 
+                    b.Navigation("MaKcNavigation");
+
                     b.Navigation("MaMhNavigation");
+
+                    b.Navigation("MaMsNavigation");
                 });
 
             modelBuilder.Entity("ShopGiay.Models.Danhgium", b =>
@@ -926,6 +952,8 @@ namespace ShopGiay.Data.Migrations
 
             modelBuilder.Entity("ShopGiay.Models.Kichco", b =>
                 {
+                    b.Navigation("Cthoadons");
+
                     b.Navigation("Tonkhos");
                 });
 
@@ -945,6 +973,8 @@ namespace ShopGiay.Data.Migrations
 
             modelBuilder.Entity("ShopGiay.Models.Mausac", b =>
                 {
+                    b.Navigation("Cthoadons");
+
                     b.Navigation("Tonkhos");
                 });
 
