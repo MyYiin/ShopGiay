@@ -42,13 +42,4 @@ public partial class Hoadon
     [ForeignKey("MaKh")]
     [InverseProperty("Hoadons")]
     public virtual Khachhang MaKhNavigation { get; set; } = null!;
-
-    public enum Status
-    {
-        ChoXuLy = 0,
-        DaXacNhan = 1,
-        DangGiaoHang = 2,
-        HoanThanh = 3,
-        DaHuy = 4
-    }
 }
