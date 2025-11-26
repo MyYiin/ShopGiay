@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ShopGiay.Enums;
 using ShopGiay.Models;
-using ShopGiay.Enums;
 using System;
 using System.Collections.Generic;
 
