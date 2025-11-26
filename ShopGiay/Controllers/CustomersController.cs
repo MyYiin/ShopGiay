@@ -96,6 +96,11 @@ namespace ShopGiay.Controllers
                 return NotFound();
             }
 
+            // Tăng lượt xem khi user xem chi tiết sản phẩm
+            mathang.LuotXem = (mathang.LuotXem ?? 0) + 1;
+            _context.Update(mathang);
+            await _context.SaveChangesAsync();
+
             return View(mathang);
 
         }

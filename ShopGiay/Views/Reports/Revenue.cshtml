@@ -1,0 +1,444 @@
+@{
+    ViewData["Title"] = "Báo cáo doanh thu";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid px-4 py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fa fa-chart-line me-2 text-primary"></i>
+                Báo cáo doanh thu
+            </h1>
+            <p class="text-muted mb-0">Phân tích và theo dõi doanh thu của cửa hàng</p>
+        </div>
+    </div>
+
+    <!-- Form Filter -->
+    <div class="card border-0 shadow-lg mb-4">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <h6 class="mb-0">
+                <i class="fa fa-filter me-2"></i>
+                Bộ lọc dữ liệu
+            </h6>
+        </div>
+        <div class="card-body p-4">
+            <form method="get" asp-action="Revenue" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold text-dark">
+                        <i class="fa fa-calendar text-primary me-1"></i>
+                        Từ ngày
+                    </label>
+                    <input type="date" name="startDate" class="form-control form-control-lg" value="@ViewBag.StartDate" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold text-dark">
+                        <i class="fa fa-calendar text-primary me-1"></i>
+                        Đến ngày
+                    </label>
+                    <input type="date" name="endDate" class="form-control form-control-lg" value="@ViewBag.EndDate" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold text-dark">
+                        <i class="fa fa-clock text-primary me-1"></i>
+                        Xem theo
+                    </label>
+                    <select name="period" class="form-select form-select-lg">
+                        <option value="day" selected="@(ViewBag.Period == "day")">Ngày</option>
+                        <option value="month" selected="@(ViewBag.Period == "month")">Tháng</option>
+                        <option value="year" selected="@(ViewBag.Period == "year")">Năm</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fa fa-search me-2"></i>Xem báo cáo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tổng quan -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-lg h-100 revenue-card">
+                <div class="card-body p-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="d-flex justify-content-between align-items-center text-white">
+                        <div>
+                            <div class="text-white-50 text-uppercase mb-1" style="font-size: 0.85rem; letter-spacing: 1px;">
+                                Tổng doanh thu
+                            </div>
+                            <h2 class="mb-0 fw-bold">@ViewBag.TotalRevenue.ToString("N0") <small style="font-size: 0.6em;">đ</small></h2>
+                        </div>
+                        <div>
+                            <div class="rounded-circle bg-white bg-opacity-25 p-3">
+                                <i class="fa fa-money-bill-wave fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-lg h-100 revenue-card">
+                <div class="card-body p-4" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="d-flex justify-content-between align-items-center text-white">
+                        <div>
+                            <div class="text-white-50 text-uppercase mb-1" style="font-size: 0.85rem; letter-spacing: 1px;">
+                                Tổng đơn hàng
+                            </div>
+                            <h2 class="mb-0 fw-bold">@ViewBag.TotalOrders</h2>
+                        </div>
+                        <div>
+                            <div class="rounded-circle bg-white bg-opacity-25 p-3">
+                                <i class="fa fa-shopping-cart fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-lg h-100 revenue-card">
+                <div class="card-body p-4" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="d-flex justify-content-between align-items-center text-white">
+                        <div>
+                            <div class="text-white-50 text-uppercase mb-1" style="font-size: 0.85rem; letter-spacing: 1px;">
+                                Giá trị TB/Đơn
+                            </div>
+                            <h2 class="mb-0 fw-bold">@ViewBag.AvgOrderValue.ToString("N0") <small style="font-size: 0.6em;">đ</small></h2>
+                        </div>
+                        <div>
+                            <div class="rounded-circle bg-white bg-opacity-25 p-3">
+                                <i class="fa fa-chart-line fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ doanh thu theo thời gian -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fa fa-chart-line me-2"></i>
+                Biểu đồ doanh thu theo thời gian
+            </h5>
+        </div>
+        <div class="card-body">
+            <canvas id="revenueChart" style="max-height: 400px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Doanh thu theo thời gian - Bảng -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fa fa-calendar-alt me-2"></i>
+                Chi tiết doanh thu theo thời gian
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Thời gian</th>
+                            <th class="text-end">Số đơn hàng</th>
+                            <th class="text-end">Doanh thu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (dynamic item in ViewBag.RevenueByTime)
+                        {
+                            <tr>
+                                <td>@item.Period</td>
+                                <td class="text-end">@item.Orders</td>
+                                <td class="text-end fw-bold text-success">@item.Revenue.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ Top 10 sản phẩm -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fa fa-chart-bar me-2"></i>
+                Top 10 sản phẩm theo doanh thu
+            </h5>
+        </div>
+        <div class="card-body">
+            <canvas id="productChart" style="max-height: 400px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Top 10 sản phẩm bán chạy - Bảng -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fa fa-trophy me-2"></i>
+                Chi tiết Top 10 sản phẩm bán chạy nhất
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên sản phẩm</th>
+                            <th class="text-end">Số lượng bán</th>
+                            <th class="text-end">Doanh thu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int stt = 1;
+                        }
+                        @foreach (dynamic item in ViewBag.RevenueByProduct)
+                        {
+                            <tr>
+                                <td>
+                                    @if (stt <= 3)
+                                    {
+                                        <span class="badge bg-warning">
+                                            <i class="fa fa-medal"></i> @stt
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        @stt
+                                    }
+                                </td>
+                                <td>@item.ProductName</td>
+                                <td class="text-end">@item.Quantity</td>
+                                <td class="text-end fw-bold text-success">@item.Revenue.ToString("N0") đ</td>
+                            </tr>
+                            stt++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nút export (optional) -->
+    <div class="text-end mb-4">
+        <button class="btn btn-outline-success" onclick="window.print()">
+            <i class="fa fa-print me-2"></i>In báo cáo
+        </button>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Dữ liệu từ ViewBag
+    const revenueData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.RevenueByTime));
+    const productData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.RevenueByProduct));
+
+    // Biểu đồ doanh thu theo thời gian (Line Chart)
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: revenueData.map(item => item.Period),
+            datasets: [{
+                label: 'Doanh thu (đ)',
+                data: revenueData.map(item => item.Revenue),
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.3,
+                fill: true
+            }, {
+                label: 'Số đơn hàng',
+                data: revenueData.map(item => item.Orders),
+                borderColor: 'rgb(255, 159, 64)',
+                backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                tension: 0.3,
+                fill: true,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                if (context.datasetIndex === 0) {
+                                    label += new Intl.NumberFormat('vi-VN').format(context.parsed.y) + ' đ';
+                                } else {
+                                    label += context.parsed.y + ' đơn';
+                                }
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    ticks: {
+                        callback: function(value) {
+                            return new Intl.NumberFormat('vi-VN').format(value) + ' đ';
+                        }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value + ' đơn';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Biểu đồ Top sản phẩm (Bar Chart)
+    const productCtx = document.getElementById('productChart').getContext('2d');
+    new Chart(productCtx, {
+        type: 'bar',
+        data: {
+            labels: productData.map(item => item.ProductName),
+            datasets: [{
+                label: 'Doanh thu (đ)',
+                data: productData.map(item => item.Revenue),
+                backgroundColor: [
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(54, 162, 235, 0.4)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(75, 192, 192, 0.4)',
+                    'rgba(153, 102, 255, 0.6)'
+                ],
+                borderColor: [
+                    'rgb(255, 206, 86)',
+                    'rgb(255, 206, 86)',
+                    'rgb(255, 206, 86)',
+                    'rgb(54, 162, 235)',
+                    'rgb(54, 162, 235)',
+                    'rgb(54, 162, 235)',
+                    'rgb(75, 192, 192)',
+                    'rgb(75, 192, 192)',
+                    'rgb(75, 192, 192)',
+                    'rgb(153, 102, 255)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Doanh thu: ' + new Intl.NumberFormat('vi-VN').format(context.parsed.x) + ' đ';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        callback: function(value) {
+                            return new Intl.NumberFormat('vi-VN', {notation: 'compact'}).format(value) + ' đ';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<style>
+    .revenue-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .revenue-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(90deg, #4e73df 0%, #224abe 100%);
+    }
+
+    .card-header {
+        border-bottom: none;
+    }
+
+    .table thead th {
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    canvas {
+        max-height: 400px !important;
+    }
+
+    @@media print {
+        .card-header {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .btn, form {
+            display: none;
+        }
+
+        .revenue-card:hover {
+            transform: none;
+        }
+    }
+</style>

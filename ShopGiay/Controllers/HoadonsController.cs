@@ -66,9 +66,12 @@ namespace ShopGiay.Controllers
         // 3. ĐỔI TRẠNG THÁI (AJAX)
         // ====================================================
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeStatus(int id, int trangThai)
         {
-            var hoadon = await _context.Hoadons.FindAsync(id);
+            var hoadon = await _context.Hoadons
+                .Include(h => h.Cthoadons)
+                .FirstOrDefaultAsync(h => h.MaHd == id);
 
             if (hoadon == null)
             {
@@ -82,6 +85,21 @@ namespace ShopGiay.Controllers
             }
 
             hoadon.TrangThai = newStatus;
+
+            // Nếu chuyển sang Hoàn Thành -> tăng LuotMua cho các sản phẩm
+            if (newStatus == Status.HoanThanh)
+            {
+                foreach (var ct in hoadon.Cthoadons)
+                {
+                    var mathang = await _context.Mathangs.FindAsync(ct.MaMh);
+                    if (mathang != null)
+                    {
+                        mathang.LuotMua = (mathang.LuotMua ?? 0) + (ct.SoLuong ?? 0);
+                        _context.Update(mathang);
+                    }
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, message = "Đã cập nhật trạng thái" });
@@ -91,6 +109,7 @@ namespace ShopGiay.Controllers
         // 4. HỦY ĐƠN (AJAX) – hoàn trả tồn kho
         // ====================================================
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CancelOrder(int id, string reason)
         {
             var hoadon = await _context.Hoadons

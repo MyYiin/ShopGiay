@@ -27,6 +27,20 @@
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
+                        <label asp-for="GiaGoc" class="form-label fw-semibold">Giá gốc</label>
+                        <input asp-for="GiaGoc" class="form-control" type="number" placeholder="Nhập giá gốc" />
+                        <span asp-validation-for="GiaGoc" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="GiaBan" class="form-label fw-semibold">Giá bán</label>
+                        <input asp-for="GiaBan" class="form-control" type="number" placeholder="Nhập giá bán" />
+                        <span asp-validation-for="GiaBan" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
                         <label asp-for="MaLg" class="form-label fw-semibold">Loại giày</label>
                         <select asp-for="MaLg" class="form-select" asp-items="ViewBag.MaLg"></select>
                     </div>
@@ -38,9 +52,8 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="HinhAnh" class="form-label fw-semibold">Hình ảnh</label>
-                    <input type="file" asp-for="HinhAnh" class="form-control" />
-                    <span asp-validation-for="HinhAnh" class="text-danger"></span>
+                    <label class="form-label fw-semibold">Hình ảnh</label>
+                    <input type="file" name="HinhAnh" class="form-control" accept="image/*" />
                 </div>
 
                 <div class="mt-4">
