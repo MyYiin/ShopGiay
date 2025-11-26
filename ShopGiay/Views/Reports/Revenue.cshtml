@@ -64,48 +64,60 @@
 
     <!-- Tổng quan -->
     <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card bg-success text-white shadow">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-lg h-100 revenue-card">
+                <div class="card-body p-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="d-flex justify-content-between align-items-center text-white">
                         <div>
-                            <h6 class="text-uppercase mb-1">Tổng doanh thu</h6>
-                            <h3 class="mb-0">@ViewBag.TotalRevenue.ToString("N0") đ</h3>
+                            <div class="text-white-50 text-uppercase mb-1" style="font-size: 0.85rem; letter-spacing: 1px;">
+                                Tổng doanh thu
+                            </div>
+                            <h2 class="mb-0 fw-bold">@ViewBag.TotalRevenue.ToString("N0") <small style="font-size: 0.6em;">đ</small></h2>
                         </div>
                         <div>
-                            <i class="fa fa-money-bill-wave fa-3x opacity-50"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card bg-info text-white shadow">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1">Tổng đơn hàng</h6>
-                            <h3 class="mb-0">@ViewBag.TotalOrders</h3>
-                        </div>
-                        <div>
-                            <i class="fa fa-shopping-cart fa-3x opacity-50"></i>
+                            <div class="rounded-circle bg-white bg-opacity-25 p-3">
+                                <i class="fa fa-money-bill-wave fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card bg-warning text-white shadow">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-lg h-100 revenue-card">
+                <div class="card-body p-4" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="d-flex justify-content-between align-items-center text-white">
                         <div>
-                            <h6 class="text-uppercase mb-1">Giá trị TB/Đơn</h6>
-                            <h3 class="mb-0">@ViewBag.AvgOrderValue.ToString("N0") đ</h3>
+                            <div class="text-white-50 text-uppercase mb-1" style="font-size: 0.85rem; letter-spacing: 1px;">
+                                Tổng đơn hàng
+                            </div>
+                            <h2 class="mb-0 fw-bold">@ViewBag.TotalOrders</h2>
                         </div>
                         <div>
-                            <i class="fa fa-chart-bar fa-3x opacity-50"></i>
+                            <div class="rounded-circle bg-white bg-opacity-25 p-3">
+                                <i class="fa fa-shopping-cart fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-lg h-100 revenue-card">
+                <div class="card-body p-4" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="d-flex justify-content-between align-items-center text-white">
+                        <div>
+                            <div class="text-white-50 text-uppercase mb-1" style="font-size: 0.85rem; letter-spacing: 1px;">
+                                Giá trị TB/Đơn
+                            </div>
+                            <h2 class="mb-0 fw-bold">@ViewBag.AvgOrderValue.ToString("N0") <small style="font-size: 0.6em;">đ</small></h2>
+                        </div>
+                        <div>
+                            <div class="rounded-circle bg-white bg-opacity-25 p-3">
+                                <i class="fa fa-chart-line fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -386,6 +398,35 @@
 </script>
 
 <style>
+    .revenue-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .revenue-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(90deg, #4e73df 0%, #224abe 100%);
+    }
+
+    .card-header {
+        border-bottom: none;
+    }
+
+    .table thead th {
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    canvas {
+        max-height: 400px !important;
+    }
+
     @@media print {
         .card-header {
             -webkit-print-color-adjust: exact;
@@ -394,6 +435,10 @@
 
         .btn, form {
             display: none;
+        }
+
+        .revenue-card:hover {
+            transform: none;
         }
     }
 </style>

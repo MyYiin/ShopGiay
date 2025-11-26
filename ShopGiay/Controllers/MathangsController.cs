@@ -204,10 +204,6 @@ namespace ShopGiay.Controllers
             {
                 return NotFound();
             }
-            // tang luot xem khi nhan vao xem san pham
-            mathang.LuotXem = (mathang.LuotXem ?? 0) + 1;
-            _context.Update(mathang);
-            await _context.SaveChangesAsync();
             return View(mathang);
         }
 
