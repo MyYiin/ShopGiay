@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using ShopGiay.Enums;
 using ShopGiay.Models;
 using System;
 using System.Collections.Generic;
@@ -116,7 +117,7 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
 
             entity.Property(e => e.Ngay).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.TongTien).HasDefaultValue(0);
-            entity.Property(e => e.TrangThai).HasDefaultValue(0);
+            entity.Property(e => e.TrangThai).HasDefaultValue(Status.ChoXuLy);
 
             entity.HasOne(d => d.MaKhNavigation).WithMany(p => p.Hoadons)
                 .OnDelete(DeleteBehavior.ClientSetNull)
