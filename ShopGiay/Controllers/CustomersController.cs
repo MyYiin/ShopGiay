@@ -112,11 +112,15 @@ namespace ShopGiay.Controllers
             return new List<CartItem>();
         }
 
-        // Lưu danh sách CartItem trong giỏ hàng vào session 
+        // Lưu danh sách CartItem trong giỏ hàng vào session
         void SaveCartSession(List<CartItem> list)
         {
             var session = HttpContext.Session;
-            string jsoncart = JsonConvert.SerializeObject(list);
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            string jsoncart = JsonConvert.SerializeObject(list, settings);
             session.SetString("shopcart", jsoncart);
         }
 
@@ -127,17 +131,26 @@ namespace ShopGiay.Controllers
             session.Remove("shopcart");
         }
 
-        // Cho hàng vào giỏ 
+        // Thêm hàng vào giỏ từ trang Index (không chọn màu/size)
+        [HttpGet]
         public async Task<IActionResult> AddToCart(int id)
         {
-            var mathang = await _context.Mathangs
-                .FirstOrDefaultAsync(m => m.MaMh == id);
-            if (mathang == null)
+            // Lấy sản phẩm đầu tiên còn hàng
+            var tonkho = await _context.Tonkhos
+                .Include(t => t.MaMhNavigation)
+                .Include(t => t.MaMsNavigation)
+                .Include(t => t.MaKcNavigation)
+                .FirstOrDefaultAsync(t => t.MaMh == id && t.SoLuongTonKho > 0);
+
+            if (tonkho == null)
             {
-                return NotFound("Sản phẩm không tồn tại");
+                TempData["ErrorMessage"] = "Sản phẩm hết hàng!";
+                return Redirect(Request.Headers["Referer"].ToString());
             }
+
             var cart = GetCartItems();
-            var item = cart.Find(p => p.MatHang.MaMh == id);
+            var item = cart.Find(p => p.TonkhoId == tonkho.MaK);
+
             if (item != null)
             {
                 item.SoLuong++;
@@ -146,13 +159,76 @@ namespace ShopGiay.Controllers
             {
                 cart.Add(new CartItem()
                 {
-                    MatHang = mathang,
+                    TonkhoId = tonkho.MaK,
+                    MatHang = tonkho.MaMhNavigation,
+                    MauSac = tonkho.MaMsNavigation.Ten,
+                    KichCo = tonkho.MaKcNavigation.GiaTriKc,
+                    MaMs = tonkho.MaMs,
+                    MaKc = tonkho.MaKc,
                     SoLuong = 1
                 });
             }
+
             SaveCartSession(cart);
-            GetData(); // Cập nhật số lượng sau khi thêm vào giỏ
-            return RedirectToAction(nameof(Index));
+            GetData();
+
+            TempData["SuccessMessage"] = "Đã thêm sản phẩm vào giỏ hàng!";
+            // Quay về trang trước đó (không chuyển trang)
+            return Redirect(Request.Headers["Referer"].ToString());
+        }
+
+        // Thêm hàng vào giỏ từ trang Details (có chọn màu/size)
+        [HttpPost]
+        public async Task<IActionResult> AddToCart(int tonkhoId, int maMs, int maKc, int quantity = 1)
+        {
+            // Lấy thông tin tồn kho
+            var tonkho = await _context.Tonkhos
+                .Include(t => t.MaMhNavigation)
+                .Include(t => t.MaMsNavigation)
+                .Include(t => t.MaKcNavigation)
+                .FirstOrDefaultAsync(t => t.MaK == tonkhoId);
+
+            if (tonkho == null)
+            {
+                TempData["ErrorMessage"] = "Sản phẩm không tồn tại!";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Kiểm tra tồn kho
+            if (tonkho.SoLuongTonKho < quantity)
+            {
+                TempData["ErrorMessage"] = "Sản phẩm không đủ số lượng trong kho!";
+                return RedirectToAction("Details", new { id = tonkho.MaMh });
+            }
+
+            var cart = GetCartItems();
+
+            // Tìm xem đã có sản phẩm này với màu và size này trong giỏ chưa
+            var item = cart.Find(p => p.MatHang.MaMh == tonkho.MaMh && p.MaMs == maMs && p.MaKc == maKc);
+
+            if (item != null)
+            {
+                item.SoLuong += quantity;
+            }
+            else
+            {
+                cart.Add(new CartItem()
+                {
+                    TonkhoId = tonkhoId,
+                    MatHang = tonkho.MaMhNavigation,
+                    MauSac = tonkho.MaMsNavigation.Ten,
+                    KichCo = tonkho.MaKcNavigation.GiaTriKc,
+                    MaMs = maMs,
+                    MaKc = maKc,
+                    SoLuong = quantity
+                });
+            }
+
+            SaveCartSession(cart);
+            GetData();
+
+            TempData["SuccessMessage"] = "Đã thêm sản phẩm vào giỏ hàng!";
+            return RedirectToAction("Details", new { id = tonkho.MaMh });
         }
 
         // Chuyển đến view xem giỏ hàng 
@@ -162,31 +238,32 @@ namespace ShopGiay.Controllers
             return View(GetCartItems());
         }
 
-        // Xóa một mặt hàng khỏi giỏ 
-        public IActionResult RemoveItem(int id)
+        // Xóa một mặt hàng khỏi giỏ
+        public IActionResult RemoveItem(int tonkhoId, int maMs, int maKc)
         {
             var cart = GetCartItems();
-            var item = cart.Find(p => p.MatHang.MaMh == id);
+            var item = cart.Find(p => p.TonkhoId == tonkhoId && p.MaMs == maMs && p.MaKc == maKc);
             if (item != null)
             {
                 cart.Remove(item);
             }
             SaveCartSession(cart);
-            GetData(); // Cập nhật số lượng sau khi xóa
+            GetData();
             return RedirectToAction(nameof(ViewCart));
         }
 
-        // Cập nhật số lượng một mặt hàng trong giỏ 
-        public IActionResult UpdateItem(int id, int quantity)
+        // Cập nhật số lượng một mặt hàng trong giỏ
+        [HttpPost]
+        public IActionResult UpdateItem(int tonkhoId, int maMs, int maKc, int quantity)
         {
             var cart = GetCartItems();
-            var item = cart.Find(p => p.MatHang.MaMh == id);
+            var item = cart.Find(p => p.TonkhoId == tonkhoId && p.MaMs == maMs && p.MaKc == maKc);
             if (item != null)
             {
                 item.SoLuong = quantity;
             }
             SaveCartSession(cart);
-            GetData(); // Cập nhật số lượng sau khi cập nhật
+            GetData();
             return RedirectToAction(nameof(ViewCart));
         }
 
@@ -473,7 +550,7 @@ namespace ShopGiay.Controllers
                 ClearCart();
                 GetData();
 
-                return View("Bill", hoadon);
+                return View("CreateBill", hoadon);
             }
             catch (Exception ex)
             {

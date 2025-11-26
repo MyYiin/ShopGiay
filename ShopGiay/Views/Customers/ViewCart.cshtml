@@ -17,6 +17,8 @@
         <tr>
             <th>STT</th>
             <th>Sản phẩm</th>
+            <th>Màu sắc</th>
+            <th>Kích cỡ</th>
             <th>Giá</th>
             <th>Số lượng</th>
             <th>Thành tiền</th>
@@ -29,28 +31,30 @@
             <tr class="align-middle">
                 <td>@(stt++)</td>
                 <td>
-                    <img src="~/images/products/@(i.MatHang.HinhAnh)" class="img
-                thumbnail" width="50" />
+                    <img src="~/images/products/@(i.MatHang.HinhAnh)" class="img-thumbnail" width="50" />
                     @(i.MatHang.Ten)
                 </td>
+                <td><span class="badge bg-info">@i.MauSac</span></td>
+                <td><span class="badge bg-secondary">@i.KichCo</span></td>
                 <td>@(i.MatHang.GiaBan?.ToString("N0")) đ</td>
                 <td>
                     <form asp-action="UpdateItem" method="post">
                         <div class="row">
                             <div class="col">
-                                <input name="id" type="hidden" value="@(i.MatHang.MaMh)" />
-                                <input name="quantity" type="number" value="@(i.SoLuong)" class="form-control" />
+                                <input name="tonkhoId" type="hidden" value="@(i.TonkhoId)" />
+                                <input name="maMs" type="hidden" value="@(i.MaMs)" />
+                                <input name="maKc" type="hidden" value="@(i.MaKc)" />
+                                <input name="quantity" type="number" value="@(i.SoLuong)" class="form-control" min="1" />
                             </div>
                             <div class="col">
-                                <input class="btn btn-warning" type="submit"
-                                       value="Cập nhật" />
+                                <input class="btn btn-warning" type="submit" value="Cập nhật" />
                             </div>
                         </div>
                     </form>
                 </td>
                 <td>@(thanhtien.ToString("N0")) đ</td>
                 <td>
-                    <a asp-action="RemoveItem" asp-route-id="@i.MatHang.MaMh"
+                    <a asp-action="RemoveItem" asp-route-tonkhoId="@i.TonkhoId" asp-route-maMs="@i.MaMs" asp-route-maKc="@i.MaKc"
                        class="text-danger">Xóa</a>
                 </td>
             </tr>
