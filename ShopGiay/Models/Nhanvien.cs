@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ShopGiay.Models;
 
 [Table("NHANVIEN")]
+[Index("MaCv", Name = "IX_NHANVIEN_MaCV")]
 public partial class Nhanvien
 {
     [Key]

@@ -21,5 +21,8 @@ public partial class Mausac
     public string? MaHex { get; set; }
 
     [InverseProperty("MaMsNavigation")]
+    public virtual ICollection<Cthoadon> Cthoadons { get; set; } = new List<Cthoadon>();
+
+    [InverseProperty("MaMsNavigation")]
     public virtual ICollection<Tonkho> Tonkhos { get; set; } = new List<Tonkho>();
 }

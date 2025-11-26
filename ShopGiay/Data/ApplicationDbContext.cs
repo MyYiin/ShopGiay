@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using ShopGiay.Enums;
 using ShopGiay.Models;
+using ShopGiay.Enums;
 using System;
 using System.Collections.Generic;
 
@@ -52,6 +54,8 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+        
         modelBuilder.Entity<Chucvu>(entity =>
         {
             entity.HasKey(e => e.MaCv).HasName("PK__CHUCVU__27258E765E11D519");
@@ -114,12 +118,11 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
 
             entity.Property(e => e.Ngay).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.TongTien).HasDefaultValue(0);
-            entity.Property(e => e.TrangThai).HasDefaultValue(0);
+            entity.Property(e => e.TrangThai).HasDefaultValue(Status.ChoXuLy);
 
             entity.HasOne(d => d.MaKhNavigation).WithMany(p => p.Hoadons)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__HOADON__MaKH__619B8048");
- 
         });
 
         modelBuilder.Entity<Khachhang>(entity =>
@@ -178,6 +181,10 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
         {
             entity.HasKey(e => e.MaK).HasName("PK__TONKHO__C7977BADD28F2A89");
 
+            entity.HasIndex(e => e.Sku, "UQ__TONKHO__CA1ECF0D1F5F9D69")
+                .IsUnique()
+                .HasFilter("([SKU] IS NOT NULL)");
+
             entity.Property(e => e.GiaBanBt).HasDefaultValue(0);
             entity.Property(e => e.GiaGocBt).HasDefaultValue(0);
             entity.Property(e => e.SoLuongTonKho).HasDefaultValue((short)0);
@@ -192,7 +199,7 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__TONKHO__MaMS__4D94879B");
         });
-        base.OnModelCreating(modelBuilder);
+
         OnModelCreatingPartial(modelBuilder);
     }
 

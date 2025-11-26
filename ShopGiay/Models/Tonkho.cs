@@ -7,8 +7,9 @@ using Microsoft.EntityFrameworkCore;
 namespace ShopGiay.Models;
 
 [Table("TONKHO")]
+[Index("MaKc", Name = "IX_TONKHO_MaKC")]
+[Index("MaMs", Name = "IX_TONKHO_MaMS")]
 [Index("MaMh", "MaMs", "MaKc", Name = "UQ__TONKHO__5770A70A3C9A8A51", IsUnique = true)]
-[Index("Sku", Name = "UQ__TONKHO__CA1ECF0D1F5F9D69", IsUnique = true)]
 public partial class Tonkho
 {
     [Key]
