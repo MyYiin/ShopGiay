@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShopGiay.Data;
 using ShopGiay.Models;
+using ShopGiay.Enums;
 
 namespace ShopGiay.Controllers
 {
@@ -74,12 +75,13 @@ namespace ShopGiay.Controllers
                 return Json(new { success = false, message = "Không tìm thấy đơn hàng" });
             }
 
-            if (!IsValidStatusChange(hoadon.TrangThai, trangThai))
+            var newStatus = (Status)trangThai;
+            if (!IsValidStatusChange(hoadon.TrangThai, newStatus))
             {
                 return Json(new { success = false, message = "Không thể chuyển sang trạng thái này" });
             }
 
-            hoadon.TrangThai = trangThai;
+            hoadon.TrangThai = newStatus;
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, message = "Đã cập nhật trạng thái" });
