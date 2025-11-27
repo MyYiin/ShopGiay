@@ -657,7 +657,7 @@ namespace ShopGiay.Controllers
         public IActionResult Signout()
         {
             HttpContext.Session.SetString("khachhang", "");
-            GetData();
+            ClearCart(); // Xóa giỏ hàng khi đăng xuất
             return RedirectToAction("Index");
         }
     }
