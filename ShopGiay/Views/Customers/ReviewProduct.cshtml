@@ -1,0 +1,175 @@
+﻿@model ShopGiay.Models.Mathang
+@* Model: ShopGiay.Models.MatHang (Sản phẩm đang được đánh giá) *@
+
+@{
+    ViewData["Title"] = "Đánh giá sản phẩm: " + Model.Ten;
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    /* Styling cho rating stars */
+    .rating-star-container {
+        font-size: 2rem;
+        cursor: pointer;
+    }
+
+        .rating-star-container .star {
+            color: #ddd; /* Màu xám nhạt cho sao chưa chọn */
+            transition: color 0.2s;
+        }
+
+            /* Đã sửa: Dùng class .selected (click) và .temp-hover (mouseover) để tô màu vàng */
+            .rating-star-container .star.selected,
+            .rating-star-container .star.temp-hover {
+                color: gold;
+            }
+
+    /* Loại bỏ các rule .star:hover và .star:hover ~ .star cũ vì JS đã xử lý hiệu ứng progressive fill bằng class .temp-hover */
+</style>
+
+@if (User.Identity.IsAuthenticated)
+{
+    @* Người dùng ĐÃ ĐĂNG NHẬP: Hiển thị form đánh giá *@
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <h2 class="fw-bold mb-4 text-center text-primary">Viết đánh giá cho sản phẩm</h2>
+
+                @* Thông tin sản phẩm *@
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body d-flex align-items-center">
+                        @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                        {
+                            <img src="~/images/products/@Model.HinhAnh"
+                                 alt="@Model.Ten"
+                                 width="80"
+                                 class="img-thumbnail me-4 rounded-3" />
+                        }
+                        <div>
+                            <h4 class="mb-1">@Model.Ten</h4>
+                            <p class="text-muted mb-0">Mã sản phẩm: <strong>@Model.MaMh</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                @* Form đánh giá *@
+                <div class="card shadow">
+                    <div class="card-header bg-warning text-white fw-bold">
+                        <i class="bi bi-star-half me-2"></i>Đánh giá của bạn
+                    </div>
+                    <div class="card-body">
+
+                        @* Form gửi đánh giá. Trỏ đến action GuiDanhGia trong CustomersController. Thêm ID để dễ truy cập bằng JS. *@
+                        <form asp-action="GuiDanhGia" asp-controller="Customers" method="post" id="reviewForm">
+                            @* Trường ẩn chứa Mã Mặt hàng *@
+                            <input type="hidden" name="MaMh" value="@Model.MaMh" />
+
+                            <div class="mb-4">
+                                <label class="form-label fw-medium">1. Điểm đánh giá (*)</label>
+                                <div class="rating-star-container" id="ratingContainer">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        @* Chỉ giữ lại icon sao *@
+                                        <i class="bi bi-star star" data-value="@i"></i>
+                                    }
+                                </div>
+                                <small class="text-danger">Vui lòng chọn từ 1 đến 5 sao.</small>
+                                @* Trường input duy nhất dùng để gửi giá trị rating (Diem) *@
+                                <input type="hidden" name="Diem" id="hiddenRatingValue" value="" required />
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="reviewContent" class="form-label fw-medium">2. Nội dung đánh giá (*)</label>
+                                <textarea class="form-control" id="reviewContent" name="NoiDung" rows="4" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..." required></textarea>
+                                <div class="form-text">Mô tả chi tiết trải nghiệm của bạn sẽ giúp người mua khác.</div>
+                            </div>
+
+                            <div class="form-check mb-4">
+                                @* value="true" sẽ được gửi nếu checkbox được chọn, ngược lại sẽ không gửi gì *@
+                                <input class="form-check-input" type="checkbox" value="true" id="isAnonymous" name="AnDanh">
+                                <label class="form-check-label" for="isAnonymous">
+                                    Đánh giá ẩn danh (Thông tin của bạn sẽ không được hiển thị công khai)
+                                </label>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                @* Thay button bằng thẻ a và dùng JS để submit form *@
+                                <a asp-contronller="Customers"asp-action="Submit" id="submitReviewButton" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-send-fill me-2"></i>Gửi Đánh Giá
+                                </a>
+                                <a asp-action="CustomerInfo" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-2"></i>Quay lại Hồ sơ
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @* Người dùng CHƯA ĐĂNG NHẬP: Hiển thị thông báo *@
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+    <div class="container my-5">
+        <div class="alert alert-warning mb-5" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>Vui lòng <a asp-controller="Customers" asp-action="Login" asp-route-ReturnUrl="@returnUrl" class="alert-link fw-bold">Đăng nhập</a> để gửi đánh giá và chia sẻ trải nghiệm của bạn!
+        </div>
+    </div>
+}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stars = document.querySelectorAll('#ratingContainer .star');
+        const hiddenRating = document.getElementById('hiddenRatingValue');
+        const submitButton = document.getElementById('submitReviewButton');
+        const reviewForm = document.getElementById('reviewForm'); // Lấy form bằng ID
+
+        // --- Xử lý Rating Stars ---
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                hiddenRating.value = value;
+
+                // Xóa trạng thái selected cũ
+                stars.forEach(s => s.classList.remove('selected'));
+
+                // Thêm trạng thái selected cho sao được chọn và các sao trước đó
+                for (let i = 0; i < value; i++) {
+                    stars[i].classList.add('selected');
+                }
+            });
+
+            // Cập nhật trạng thái của sao khi hover (dùng .temp-hover)
+            star.addEventListener('mouseover', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                stars.forEach(s => s.classList.remove('temp-hover')); // Xóa trạng thái hover tạm thời
+                for (let i = 0; i < value; i++) {
+                    stars[i].classList.add('temp-hover');
+                }
+            });
+
+            // Khôi phục trạng thái sao khi rời khỏi khu vực rating (chỉ xóa .temp-hover)
+            star.addEventListener('mouseout', function() {
+                stars.forEach(s => s.classList.remove('temp-hover'));
+            });
+        });
+
+        // Khôi phục trạng thái selected khi tải lại trang (nếu có giá trị)
+        if (hiddenRating.value) {
+            const selectedValue = parseInt(hiddenRating.value);
+            for (let i = 0; i < selectedValue; i++) {
+                stars[i].classList.add('selected');
+            }
+        }
+
+        // --- Xử lý Submit Form bằng thẻ A ---
+        submitButton.addEventListener('click', function(e) {
+            e.preventDefault(); // Ngăn chặn hành động mặc định của thẻ <a> (chuyển hướng)
+
+            // Kích hoạt việc gửi form (POST)
+            reviewForm.submit();
+        });
+    });
+</script>

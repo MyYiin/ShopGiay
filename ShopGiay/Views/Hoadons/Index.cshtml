@@ -62,10 +62,6 @@
 
                 <td>
                     <a asp-action="Details" asp-route-id="@item.MaHd" class="btn btn-sm btn-info">Chi tiết</a>
-
-                    @* ===========================
-                       NÚT CHUYỂN TRẠNG THÁI
-                       =========================== *@
                     @if (item.TrangThai == ShopGiay.Enums.Status.ChoXuLy)
                     {
                         <button class="btn btn-sm btn-success"

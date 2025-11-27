@@ -9,13 +9,15 @@ namespace ShopGiay.Models;
 [Table("DANHGIA")]
 [Index("MaMh", Name = "IX_DANHGIA_MaMh")]
 [Index("MaKh", "MaMh", Name = "UQ__DANHGIA__A55792EC175A939E", IsUnique = true)]
-public partial class Danhgium
+public partial class Danhgia
 {
     [Key]
     [Column("MaDG")]
     public int MaDg { get; set; }
 
     public int MaMh { get; set; }
+    [Column("IsAnonymous")]
+    public bool IsAnonymous { get; set; } = false;
 
     [Column("MaKH")]
     public int MaKh { get; set; }

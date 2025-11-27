@@ -1,6 +1,13 @@
-﻿@{
+﻿@model IEnumerable<ShopGiay.Models.Hoadon>
+@* Lưu ý: Model trong Canvas đang là IEnumerable<Hoadon>, nhưng code trong yêu cầu dùng ViewBag.khachhang.
+    Tôi sẽ chuyển đổi code dưới đây để dùng lại logic ViewBag của bạn.
+*@
+
+@{
     ViewData["Title"] = "Hồ sơ khách hàng";
 }
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 @if (ViewBag.khachhang != null)
 {
@@ -9,13 +16,12 @@
     <div class="container my-4">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h3>Chào @kh.Ten!</h3>
+                <h3 class="fw-bold"><i class="bi bi-person-circle me-2 text-primary"></i>Chào @kh.Ten!</h3>
                 <p class="text-success mb-2"><i class="bi bi-check-circle-fill"></i> Đăng nhập thành công</p>
-                <p><a asp-action="Signout" class="text-primary">Đăng xuất</a></p>
-
+                <p><a asp-action="Signout" class="text-primary fw-medium">Đăng xuất</a></p>
                 <hr class="my-4" />
 
-                <h4 class="mb-3">Danh sách đơn hàng</h4>
+                <h4 class="mb-3 fw-bold"><i class="bi bi-list-check me-2 text-info"></i>Danh sách đơn hàng</h4>
 
                 @if (kh.Hoadons != null && kh.Hoadons.Count > 0)
                 {
@@ -26,7 +32,7 @@
                                     <th>Mã HD</th>
                                     <th>Ngày</th>
                                     <th>Tổng tiền</th>
-                                    <th>Xem</th>
+                                    <th>Xem chi tiết</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -35,28 +41,29 @@
                                     <tr>
                                         <td><strong>@hd.MaHd</strong></td>
                                         <td>@hd.Ngay?.ToString("dd/MM/yyyy h:mm:ss tt")</td>
-                                        <td><strong class="text-danger">@hd.TongTien?.ToString("N0")</strong></td>
+                                        <td><strong class="text-danger">@hd.TongTien?.ToString("N0")₫</strong></td>
                                         <td>
                                             <button class="btn btn-sm btn-info text-white" type="button"
                                                     data-bs-toggle="collapse"
                                                     data-bs-target="#order_@hd.MaHd">
-                                                Chi tiết
+                                                <i class="bi bi-search"></i> Chi tiết
                                             </button>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td colspan="4" class="p-0 border-0">
                                             <div class="collapse" id="order_@hd.MaHd">
-                                                <div class="card card-body bg-light m-2">
+                                                <div class="card card-body bg-light m-2 p-3">
                                                     @if (hd.Cthoadons != null && hd.Cthoadons.Count > 0)
                                                     {
                                                         <table class="table table-sm table-bordered bg-white mb-0">
                                                             <thead class="table-secondary">
                                                                 <tr>
                                                                     <th>Mặt hàng</th>
-                                                                    <th width="120">Đơn giá</th>
-                                                                    <th width="80">Số lượng</th>
-                                                                    <th width="120">Thành tiền</th>
+                                                                    <th width="120" class="text-end">Đơn giá</th>
+                                                                    <th width="80" class="text-center">Số lượng</th>
+                                                                    <th width="120" class="text-end">Thành tiền</th>
+                                                                    <th width="100" class="text-center">Đánh giá</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -70,14 +77,26 @@
                                                                                     <img src="~/images/products/@ct.MaMhNavigation.HinhAnh"
                                                                                          alt="@ct.MaMhNavigation?.Ten"
                                                                                          width="50"
-                                                                                         class="img-thumbnail me-2" />
+                                                                                         class="img-thumbnail me-2 rounded" />
                                                                                 }
-                                                                                <span>@ct.MaMhNavigation?.Ten</span>
+                                                                                <a asp-controller="Customers" asp-action="Details" asp-route-id="@ct.MaMh" class="text-decoration-none fw-medium">
+                                                                                    @ct.MaMhNavigation?.Ten
+                                                                                </a>
                                                                             </div>
                                                                         </td>
-                                                                        <td class="text-end">@ct.DonGia?.ToString("N0")</td>
+                                                                        <td class="text-end">@ct.DonGia?.ToString("N0")₫</td>
                                                                         <td class="text-center">@ct.SoLuong</td>
-                                                                        <td class="text-end"><strong>@ct.ThanhTien?.ToString("N0")</strong></td>
+                                                                        <td class="text-end"><strong>@ct.ThanhTien?.ToString("N0")₫</strong></td>
+
+                                                                        @* ĐÃ SỬA: Điều hướng về trang đánh giá riêng mà người dùng đã tạo *@
+                                                                        <td class="text-center">
+                                                                            <a asp-action="ReviewProduct"
+                                                                               asp-controller="Customers"
+                                                                               asp-route-id="@ct.MaMh"
+                                                                               class="btn btn-sm btn-warning text-white fw-bold py-1 px-2">
+                                                                                <i class="bi bi-star-fill me-1"></i>Đánh giá
+                                                                            </a>
+                                                                        </td>
                                                                     </tr>
                                                                 }
                                                             </tbody>

@@ -29,7 +29,7 @@ public partial class Khachhang
     public string? MatKhau { get; set; }
 
     [InverseProperty("MaKhNavigation")]
-    public virtual ICollection<Danhgium> Danhgia { get; set; } = new List<Danhgium>();
+    public virtual ICollection<Danhgia> Danhgia { get; set; } = new List<Danhgia>();
 
     [InverseProperty("MaKhNavigation")]
     public virtual ICollection<Diachi> Diachis { get; set; } = new List<Diachi>();

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ShopGiay.Enums;
 using ShopGiay.Models;
+using ShopGiay.Enums;
 using System;
 using System.Collections.Generic;
 
@@ -25,7 +26,7 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
 
     public virtual DbSet<Cuahang> Cuahangs { get; set; }
 
-    public virtual DbSet<Danhgium> Danhgia { get; set; }
+    public virtual DbSet<Danhgia> Danhgia { get; set; }
 
     public virtual DbSet<Diachi> Diachis { get; set; }
 
@@ -87,7 +88,7 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
             entity.HasKey(e => e.MaCh).HasName("PK__CUAHANG__27258E00A1FDB92B");
         });
 
-        modelBuilder.Entity<Danhgium>(entity =>
+        modelBuilder.Entity<Danhgia>(entity =>
         {
             entity.HasKey(e => e.MaDg).HasName("PK__DANHGIA__27258660CC45A924");
 

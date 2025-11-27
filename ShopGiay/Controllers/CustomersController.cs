@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using ShopGiay.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ShopGiay.Controllers
@@ -20,14 +22,15 @@ namespace ShopGiay.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
 
-       
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CustomersController(ApplicationDbContext context, IPasswordHasher<Khachhang> passwordHasher, SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager )
+        public CustomersController(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IPasswordHasher<Khachhang> passwordHasher, SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager )
         {
             _context = context;
             _passwordHasher = passwordHasher;
             _signInManager = signInManager;
             _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         void GetData()
@@ -66,21 +69,6 @@ namespace ShopGiay.Controllers
         // GET: Customers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            //GetData();
-            //if (id == null)
-            //{
-            //    return NotFound();
-            //}
-
-            //var mathang = await _context.Mathangs
-            //    .Include(m => m.MaThNavigation)
-            //    .FirstOrDefaultAsync(m => m.MaMh == id);
-            //if (mathang == null)
-            //{
-            //    return NotFound();
-            //}
-
-            //return View(mathang);
             GetData();
             var mathang = _context.Mathangs
                 .Include(m => m.Tonkhos)
@@ -95,7 +83,44 @@ namespace ShopGiay.Controllers
             {
                 return NotFound();
             }
+            var danhSachDanhGia = await _context.Danhgia
+                .Where(dg => dg.MaMh == id)
+                // Phải Include MaKhNavigation để lấy tên khách hàng trong View
+                .Include(dg => dg.MaKhNavigation) 
+                .ToListAsync();
 
+            // 2. Tính toán điểm trung bình
+            double averageRating = 0.0;
+            int reviewCount = danhSachDanhGia.Count;
+            if (reviewCount > 0)
+            {
+                // Sử dụng thuộc tính Diem trong Model Danhgia (chú ý chữ hoa/thường)
+                averageRating = Math.Round(danhSachDanhGia.Average(dg => (double)dg.Diem), 1); // Làm tròn 1 chữ số thập phân
+            }
+
+            // 3. Kiểm tra khách hàng hiện tại đã đánh giá chưa
+            bool hasReviewed = false;
+            // Lấy MaKH từ Claims. Giả định bạn lưu MaKH là một Claim khi đăng nhập.
+            var userIdString = _httpContextAccessor.HttpContext.User.FindFirst("MaKH")?.Value;
+            
+            if (!string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int maKh))
+            {
+                // Kiểm tra nếu MaKH đã tồn tại trong danh sách đánh giá cho sản phẩm này
+                hasReviewed = danhSachDanhGia.Any(dg => dg.MaKh == maKh);
+            }
+            
+            // 4. Lấy danh sách biến thể (Giả định có bảng BienThe và Model tương ứng)
+            // Cần BienThe để hiển thị dropdown Màu/Size
+            var danhSachBienThe = await _context.Tonkhos
+                .Where(bt => bt.MaMh == id)
+                .ToListAsync();
+
+            // Gán dữ liệu vào ViewBag
+            ViewBag.AverageRating = averageRating;
+            ViewBag.ReviewCount = reviewCount;
+            ViewBag.HasReviewed = hasReviewed;
+            ViewBag.DanhSachDanhGia = danhSachDanhGia;
+            ViewBag.BienThe = danhSachBienThe;
             // Tăng lượt xem khi user xem chi tiết sản phẩm
             mathang.LuotXem = (mathang.LuotXem ?? 0) + 1;
             _context.Update(mathang);
@@ -310,114 +335,7 @@ namespace ShopGiay.Controllers
             return View(cart);
         }
 
-        // Lập hóa đơn: lưu hóa đơn, lưu chi tiết hóa đơn 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> CreateBill(string email, string hoten, string dienthoai, string diachi)
-        //{
-        //    // Validation
-        //    if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(hoten) ||
-        //        string.IsNullOrWhiteSpace(dienthoai) || string.IsNullOrWhiteSpace(diachi))
-        //    {
-        //        TempData["ErrorMessage"] = "Vui lòng điền đầy đủ thông tin!";
-        //        return RedirectToAction(nameof(CheckOut));
-        //    }
-
-        //    var cart = GetCartItems();
-        //    if (cart == null || cart.Count == 0)
-        //    {
-        //        TempData["ErrorMessage"] = "Giỏ hàng trống!";
-        //        return RedirectToAction(nameof(ViewCart));
-        //    }
-
-        //    try
-        //    {
-        //        // Kiểm tra xem khách hàng đã tồn tại chưa
-        //        var kh = await _context.Khachhangs.FirstOrDefaultAsync(k => k.Email == email);
-
-        //        // Nếu chưa tồn tại thì tạo mới
-        //        if (kh == null)
-        //        {
-        //            kh = new Khachhang();
-        //            kh.Email = email;
-        //            kh.Ten = hoten;
-        //            kh.DienThoai = dienthoai;
-        //            _context.Add(kh);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        else
-        //        {
-        //            // Cập nhật thông tin nếu khách hàng đã tồn tại
-        //            kh.Ten = hoten;
-        //            kh.DienThoai = dienthoai;
-        //            _context.Update(kh);
-        //            await _context.SaveChangesAsync();
-        //        }
-
-        //        // Lưu địa chỉ khách hàng
-        //        var dc = new Diachi();
-        //        dc.MaKh = kh.MaKh;
-        //        dc.DiaChi1 = diachi;
-        //        dc.MacDinh = 1; // Địa chỉ mặc định
-        //        _context.Add(dc);
-        //        await _context.SaveChangesAsync();
-
-        //        var hd = new Hoadon();
-        //        hd.Ngay = DateTime.Now;
-        //        hd.MaKh = kh.MaKh;
-        //        hd.TrangThai = 1; // Đã thanh toán
-        //        _context.Add(hd);
-        //        await _context.SaveChangesAsync();
-
-        //        // thêm chi tiết hóa đơn - Load lại MatHang từ database để đảm bảo dữ liệu chính xác
-        //        int thanhtien = 0;
-        //        int tongtien = 0;
-        //        foreach (var i in cart)
-        //        {
-        //            // Load lại MatHang từ database
-        //            var mathang = await _context.Mathangs.FindAsync(i.MatHang.MaMh);
-        //            if (mathang == null)
-        //            {
-        //                continue; // Bỏ qua sản phẩm không tồn tại
-        //            }
-
-        //            var ct = new Cthoadon();
-        //            ct.MaHd = hd.MaHd;
-        //            ct.MaMh = mathang.MaMh;
-
-        //            thanhtien = (mathang.GiaBan ?? 0) * i.SoLuong;
-        //            tongtien += thanhtien;
-        //            ct.DonGia = mathang.GiaBan;
-        //            ct.SoLuong = (short)i.SoLuong;
-        //            ct.ThanhTien = thanhtien;
-        //            _context.Add(ct);
-        //        }
-        //        await _context.SaveChangesAsync();
-
-        //        // cập nhật tổng tiền hóa đơn 
-        //        hd.TongTien = tongtien;
-        //        _context.Update(hd);
-        //        await _context.SaveChangesAsync();
-
-        //        // Load lại hóa đơn với đầy đủ thông tin để hiển thị
-        //        var hoadon = await _context.Hoadons
-        //            .Include(h => h.MaKhNavigation)
-        //            .Include(h => h.Cthoadons)
-        //                .ThenInclude(ct => ct.MaMhNavigation)
-        //            .FirstOrDefaultAsync(h => h.MaHd == hd.MaHd);
-
-        //        // xóa giỏ hàng 
-        //        ClearCart();
-        //        GetData(); // Cập nhật số lượng về 0 sau khi xóa giỏ hàng
-
-        //        return View(hoadon);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        TempData["ErrorMessage"] = "Có lỗi xảy ra khi tạo hóa đơn: " + ex.Message;
-        //        return RedirectToAction(nameof(CheckOut));
-        //    }
-        //}
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBill(string email, string hoten, string dienthoai, string diachi)
@@ -659,6 +577,98 @@ namespace ShopGiay.Controllers
             HttpContext.Session.SetString("khachhang", "");
             ClearCart(); // Xóa giỏ hàng khi đăng xuất
             return RedirectToAction("Index");
+        }
+        public IActionResult About()
+        {
+            return View();
+        }
+        // Thêm Action này vào CustomersController
+        // POST: Customers/GuiDanhGia
+        [HttpPost]
+        [Authorize] // Yêu cầu khách hàng phải đăng nhập
+        public async Task<IActionResult> GuiDanhGia(int MaMh, int Diem, string NoiDung)
+        {
+            // 1. Lấy MaKH của khách hàng đang đăng nhập (giả định đã lưu trong Claim "MaKH")
+            var userIdString = _httpContextAccessor.HttpContext.User.FindFirst("MaKH")?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int maKh))
+            {
+                // Trả về lỗi nếu không tìm thấy MaKH hợp lệ (mặc dù đã có [Authorize])
+                TempData["Error"] = "Vui lòng đăng nhập lại để thực hiện chức năng này.";
+                return RedirectToAction(nameof(Details), new { id = MaMh });
+            }
+
+            // 2. Kiểm tra khách hàng đã đánh giá sản phẩm này chưa (đảm bảo UNIQUE (MaKH, MaMh))
+            var existingReview = await _context.Danhgia
+                .FirstOrDefaultAsync(dg => dg.MaMh == MaMh && dg.MaKh == maKh);
+
+            if (existingReview != null)
+            {
+                TempData["Error"] = "Bạn đã đánh giá sản phẩm này trước đó rồi.";
+                return RedirectToAction(nameof(Details), new { id = MaMh });
+            }
+
+            // 3. Tạo đối tượng đánh giá mới
+            var newReview = new Danhgia
+            {
+                MaMh = MaMh,
+                MaKh = maKh,
+                Diem = Diem,
+                NoiDung = NoiDung,
+                NgayDg = DateTime.Now 
+            };
+
+            // 4. Lưu vào cơ sở dữ liệu
+            try
+            {
+                _context.Add(newReview);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Cảm ơn bạn đã gửi đánh giá thành công!";
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi khi lưu DB (ví dụ: ràng buộc khóa ngoại, lỗi kết nối,...)
+                TempData["Error"] = "Có lỗi xảy ra khi lưu đánh giá: " + ex.Message;
+            }
+
+            // Quay lại trang chi tiết sản phẩm
+            return RedirectToAction(nameof(Details), new { id = MaMh });
+        }
+
+
+        [HttpGet]
+        [Authorize] // Đảm bảo chỉ khách hàng đã đăng nhập mới vào được trang này
+        public IActionResult ReviewProduct(int id) // id chính là MaMh
+        {
+            // 1. Tìm sản phẩm theo id (MaMh)
+            var matHang = _context.Mathangs.Find(id);
+
+            // 2. Tùy chọn: Kiểm tra xem người dùng có quyền đánh giá sản phẩm này (đã mua) không.
+            //Đây là bước quan trọng để tránh lỗi logic trước đây.
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var daMua = _context.Cthoadons.Any(ct =>
+                ct.MaMh == id && ct.MaHdNavigation.MaKhNavigation.Ten== userId);
+
+            if (!daMua) return RedirectToAction("CustomerInfo", new { Message = "Bạn chưa mua sản phẩm này.", Type = "danger" });
+
+            return View(matHang);
+        }
+        [HttpPost]
+        [Authorize]
+        public IActionResult SubmitReview(Danhgia model)
+        {
+            // 1. Lấy MaKh đang đăng nhập
+            var maKh = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            // 2. Gán các trường còn thiếu
+            model.NgayDg = DateTime.Now;
+
+            // 3. Lưu vào DB
+            _context.Danhgia.Add(model);
+            _context.SaveChanges();
+
+            // 4. Chuyển hướng về trang chi tiết sản phẩm
+            return RedirectToAction("Details", new { id = model.MaMh });
         }
     }
 }

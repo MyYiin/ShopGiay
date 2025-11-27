@@ -42,7 +42,7 @@ public partial class Mathang
     public virtual ICollection<Cthoadon> Cthoadons { get; set; } = new List<Cthoadon>();
 
     [InverseProperty("MaMhNavigation")]
-    public virtual ICollection<Danhgium> Danhgia { get; set; } = new List<Danhgium>();
+    public virtual ICollection<Danhgia> Danhgia { get; set; } = new List<Danhgia>();
 
     [ForeignKey("MaLg")]
     [InverseProperty("Mathangs")]
