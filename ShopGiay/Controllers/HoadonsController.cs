@@ -63,7 +63,7 @@ namespace ShopGiay.Controllers
         }
 
         // ====================================================
-        // 3. ĐỔI TRẠNG THÁI (AJAX)
+        // 3. ĐỔI TRẠNG THÁI
         // ====================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -75,13 +75,15 @@ namespace ShopGiay.Controllers
 
             if (hoadon == null)
             {
-                return Json(new { success = false, message = "Không tìm thấy đơn hàng" });
+                TempData["Error"] = "Không tìm thấy đơn hàng";
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             var newStatus = (Status)trangThai;
             if (!IsValidStatusChange(hoadon.TrangThai, newStatus))
             {
-                return Json(new { success = false, message = "Không thể chuyển sang trạng thái này" });
+                TempData["Error"] = "Không thể chuyển sang trạng thái này";
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             hoadon.TrangThai = newStatus;
@@ -102,11 +104,12 @@ namespace ShopGiay.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Json(new { success = true, message = "Đã cập nhật trạng thái" });
+            TempData["Success"] = "Đã cập nhật trạng thái đơn hàng thành công!";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // ====================================================
-        // 4. HỦY ĐƠN (AJAX) – hoàn trả tồn kho
+        // 4. HỦY ĐƠN – hoàn trả tồn kho
         // ====================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -117,10 +120,16 @@ namespace ShopGiay.Controllers
                 .FirstOrDefaultAsync(h => h.MaHd == id);
 
             if (hoadon == null)
-                return Json(new { success = false, message = "Không tìm thấy đơn hàng" });
+            {
+                TempData["Error"] = "Không tìm thấy đơn hàng";
+                return RedirectToAction(nameof(Details), new { id });
+            }
 
             if (hoadon.TrangThai == Status.HoanThanh)
-                return Json(new { success = false, message = "Không thể hủy đơn hàng đã hoàn thành" });
+            {
+                TempData["Error"] = "Không thể hủy đơn hàng đã hoàn thành";
+                return RedirectToAction(nameof(Details), new { id });
+            }
 
             // hoàn kho
             foreach (var ct in hoadon.Cthoadons)
@@ -136,7 +145,8 @@ namespace ShopGiay.Controllers
             hoadon.TrangThai = Status.DaHuy;
             await _context.SaveChangesAsync();
 
-            return Json(new { success = true, message = "Đã hủy đơn hàng" });
+            TempData["Success"] = $"Đã hủy đơn hàng. Lý do: {reason}";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // ====================================================

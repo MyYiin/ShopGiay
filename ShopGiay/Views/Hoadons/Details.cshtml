@@ -24,6 +24,22 @@
 <div class="container-fluid mt-4">
     <h2 class="mb-4">📋 Chi Tiết Đơn Hàng #@Model.MaHd</h2>
 
+    @* Hiển thị thông báo *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <div class="row">
         <div class="col-lg-6 mb-4">
             @* --- 1. THÔNG TIN CHUNG ĐƠN HÀNG --- *@
@@ -246,3 +262,104 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        let currentOrderId = null;
+        let currentStatus = null;
+
+        // Hàm đổi trạng thái
+        function changeStatus(orderId, status, actionName) {
+            currentOrderId = orderId;
+            currentStatus = status;
+
+            document.getElementById('confirmMessage').innerText =
+                `Bạn có chắc muốn ${actionName} đơn hàng #${orderId} không?`;
+
+            var modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            modal.show();
+        }
+
+        // Xử lý khi click xác nhận đổi trạng thái
+        document.getElementById('confirmBtn').addEventListener('click', function () {
+            if (currentOrderId && currentStatus !== null) {
+                // Tạo form để submit
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("ChangeStatus", "Hoadons")';
+
+                // Token CSRF
+                var tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)[1];
+                form.appendChild(tokenInput);
+
+                // Order ID
+                var idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = currentOrderId;
+                form.appendChild(idInput);
+
+                // Status
+                var statusInput = document.createElement('input');
+                statusInput.type = 'hidden';
+                statusInput.name = 'trangThai';
+                statusInput.value = currentStatus;
+                form.appendChild(statusInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+
+        // Hàm hủy đơn
+        function cancelOrder(orderId) {
+            currentOrderId = orderId;
+            document.getElementById('cancelReason').value = '';
+            var modal = new bootstrap.Modal(document.getElementById('cancelModal'));
+            modal.show();
+        }
+
+        // Xử lý khi xác nhận hủy đơn
+        document.getElementById('cancelConfirmBtn').addEventListener('click', function () {
+            var reason = document.getElementById('cancelReason').value;
+
+            if (!reason.trim()) {
+                alert('Vui lòng nhập lý do hủy đơn!');
+                return;
+            }
+
+            if (currentOrderId) {
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("CancelOrder", "Hoadons")';
+
+                // Token CSRF
+                var tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)[1];
+                form.appendChild(tokenInput);
+
+                // Order ID
+                var idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = currentOrderId;
+                form.appendChild(idInput);
+
+                // Reason
+                var reasonInput = document.createElement('input');
+                reasonInput.type = 'hidden';
+                reasonInput.name = 'reason';
+                reasonInput.value = reason;
+                form.appendChild(reasonInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    </script>
+}
