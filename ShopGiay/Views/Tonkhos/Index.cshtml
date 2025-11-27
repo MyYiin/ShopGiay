@@ -1,72 +1,85 @@
 ﻿@model IEnumerable<ShopGiay.Models.Tonkho>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản Lý Tồn Kho";
     Layout = "_LayoutAdmin";
 }
 
-<h1>Index</h1>
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 text-primary">📦 Quản Lý Tồn Kho Sản Phẩm</h2>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle me-1"></i> Tạo Tồn Kho Mới
+        </a>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Sku)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoLuongTonKho)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GiaGocBt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GiaBanBt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaKcNavigation)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaMhNavigation)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaMsNavigation)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sku)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SoLuongTonKho)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GiaGocBt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GiaBanBt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MaKcNavigation.GiaTriKc)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MaMhNavigation.Ten)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MaMsNavigation.Ten)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaK">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaK">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaK">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i> Danh Sách Chi Tiết Tồn Kho</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>SKU</th>
+                            <th>Sản Phẩm</th>
+                            <th>Màu Sắc / Kích Cỡ</th>
+                            <th class="text-center">Số Lượng Tồn</th>
+                            <th class="text-end">Giá Gốc (VNĐ)</th>
+                            <th class="text-end">Giá Bán (VNĐ)</th>
+                            <th class="text-center">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@Html.DisplayFor(modelItem => item.Sku)</strong>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.MaMhNavigation.Ten)
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        @Html.DisplayFor(modelItem => item.MaMsNavigation.Ten)
+                                    </span>
+                                    /
+                                    <span class="badge bg-secondary">
+                                        @Html.DisplayFor(modelItem => item.MaKcNavigation.GiaTriKc)
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-bold @(item.SoLuongTonKho <= 5 ? "text-danger" : "text-success")">
+                                        @Html.DisplayFor(modelItem => item.SoLuongTonKho)
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    @item.GiaGocBt?.ToString("N0")
+                                </td>
+                                <td class="text-end">
+                                    <strong class="text-danger">@item.GiaBanBt?.ToString("N0")</strong>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.MaK" class="btn btn-outline-warning" title="Chỉnh sửa">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.MaK" class="btn btn-outline-info" title="Xem chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.MaK" class="btn btn-outline-danger" title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">

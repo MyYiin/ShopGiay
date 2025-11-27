@@ -1,44 +1,248 @@
-﻿@model ShopGiay.Models.Hoadon
+﻿@using ShopGiay.Enums
+@using ShopGiay.Models;
+@model ShopGiay.Models.Hoadon
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi Tiết Đơn Hàng #" + Model.MaHd;
     Layout = "_LayoutAdmin";
+
+    // Hàm tiện ích: Chuyển đổi trạng thái Enum sang Badge HTML
+    string GetStatusBadge(Status status)
+    {
+        return status switch
+        {
+            Status.ChoXuLy => "<span class='badge bg-warning text-dark'>Chờ xử lý</span>",
+            Status.DaXacNhan => "<span class='badge bg-info'>Đã xác nhận</span>",
+            Status.DangGiaoHang => "<span class='badge bg-primary'>Đang giao hàng</span>",
+            Status.HoanThanh => "<span class='badge bg-success'>Hoàn thành</span>",
+            Status.DaHuy => "<span class='badge bg-danger'>Đã hủy</span>",
+            _ => "<span class='badge bg-secondary'>Không rõ</span>",
+        };
+    }
 }
 
-<h1>Details</h1>
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">📋 Chi Tiết Đơn Hàng #@Model.MaHd</h2>
 
-<div>
-    <h4>Hoadon</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Ngay)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Ngay)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TongTien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TongTien)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaKhNavigation)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaKhNavigation.MaKh)
-        </dd>
-        
-    </dl>
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            @* --- 1. THÔNG TIN CHUNG ĐƠN HÀNG --- *@
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="bi bi-info-circle me-2"></i> Thông Tin Chung</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Mã HĐ:</dt>
+                        <dd class="col-sm-8"><strong>#@Model.MaHd</strong></dd>
+
+                        <dt class="col-sm-4">Trạng Thái:</dt>
+                        <dd class="col-sm-8">@Html.Raw(GetStatusBadge(Model.TrangThai))</dd>
+
+                        <dt class="col-sm-4">Ngày Đặt:</dt>
+                        <dd class="col-sm-8">@Model.Ngay?.ToString("dd/MM/yyyy HH:mm")</dd>
+                    </dl>
+                </div>
+            </div>
+
+            @* --- 2. THÔNG TIN KHÁCH HÀNG & GIAO HÀNG --- *@
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="bi bi-people me-2"></i> Thông Tin Khách Hàng & Địa Chỉ</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.MaKhNavigation != null)
+                    {
+                        <dl class="row">
+                            <dt class="col-sm-4">Tên Khách Hàng:</dt>
+                            <dd class="col-sm-8">@Model.MaKhNavigation.Ten</dd>
+
+                            <dt class="col-sm-4">Email:</dt>
+                            <dd class="col-sm-8">@Model.MaKhNavigation.Email</dd>
+
+                            <dt class="col-sm-4">SĐT:</dt>
+                            <dd class="col-sm-8">@Model.MaKhNavigation.DienThoai</dd>
+                        </dl>
+
+                        <h6 class="mt-3">Địa Chỉ Giao Hàng</h6>
+                        @* Cần lấy địa chỉ đã được lưu trong Hóa đơn nếu có trường lưu riêng,
+                           hoặc tìm cách xác định địa chỉ đã dùng cho đơn hàng này.
+                           Hiện tại dùng logic của bạn là lấy địa chỉ đầu tiên của khách hàng *@
+                        @if (Model.MaKhNavigation.Diachis != null && Model.MaKhNavigation.Diachis.Any())
+                        {
+                            var diachi = Model.MaKhNavigation.Diachis.First();
+                            <p class="ms-3">
+                                <i class="bi bi-geo-alt-fill text-danger me-2"></i>
+                                @diachi.DiaChi1, @diachi.PhuongXa, @diachi.QuanHuyen, @diachi.Tinh
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="text-muted ms-3">Không có thông tin địa chỉ cụ thể.</p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Không tìm thấy thông tin Khách hàng.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5><i class="bi bi-gear me-2"></i> Thao Tác Đơn Hàng</h5>
+                </div>
+                <div class="card-body text-center">
+                    @* Các nút thao tác trạng thái *@
+                    <p class="text-muted">Sử dụng các nút bên dưới để cập nhật trạng thái đơn hàng:</p>
+
+                    @if (Model.TrangThai == Status.ChoXuLy)
+                    {
+                        <button class="btn btn-success m-1"
+                                onclick="changeStatus(@Model.MaHd, @((int)Status.DaXacNhan), 'xác nhận')">
+                            <i class="bi bi-check-circle"></i> Xác nhận
+                        </button>
+                        <button class="btn btn-danger m-1" onclick="cancelOrder(@Model.MaHd)">
+                            <i class="bi bi-x-circle"></i> Hủy
+                        </button>
+                    }
+                    else if (Model.TrangThai == Status.DaXacNhan)
+                    {
+                        <button class="btn btn-primary m-1"
+                                onclick="changeStatus(@Model.MaHd, @((int)Status.DangGiaoHang), 'chuyển sang giao hàng')">
+                            <i class="bi bi-truck"></i> Giao hàng
+                        </button>
+                        <button class="btn btn-danger m-1" onclick="cancelOrder(@Model.MaHd)">
+                            <i class="bi bi-x-circle"></i> Hủy
+                        </button>
+                    }
+                    else if (Model.TrangThai == Status.DangGiaoHang)
+                    {
+                        <button class="btn btn-success m-1"
+                                onclick="changeStatus(@Model.MaHd, @((int)Status.HoanThanh), 'hoàn thành')">
+                            <i class="bi bi-box-seam"></i> Hoàn thành
+                        </button>
+                    }
+                    else
+                    {
+                        <p class="alert alert-secondary mt-3">Đơn hàng đã ở trạng thái **@Model.TrangThai.ToString()**.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --- 3. DANH SÁCH SẢN PHẨM (CHI TIẾT HÓA ĐƠN) --- *@
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-secondary text-white">
+            <h5><i class="bi bi-list-ul me-2"></i> Sản Phẩm Trong Đơn Hàng</h5>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-bordered mb-0 table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã MH</th>
+                        <th>Tên Sản Phẩm</th>
+                        <th class="text-center">Màu/Kích Cỡ</th>
+                        <th class="text-center">Số Lượng</th>
+                        <th class="text-end">Đơn Giá</th>
+                        <th class="text-end">Thành Tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Cthoadons != null && Model.Cthoadons.Any())
+                    {
+                        @foreach (var item in Model.Cthoadons)
+                        {
+                            decimal thanhTien = (item.SoLuong ?? 0) * (item.DonGia ?? 0);
+
+                            <tr>
+                                <td>@item.MaMh</td>
+                                <td>@item.MaMhNavigation?.Ten</td>
+                                <td class="text-center">
+                                    @item.MaMsNavigation?.Ten / @item.MaKcNavigation?.GiaTriKc
+                                </td>
+                                <td class="text-center">@item.SoLuong</td>
+                                <td class="text-end">@item.DonGia?.ToString("N0") đ</td>
+                                <td class="text-end"><strong class="text-primary">@thanhTien.ToString("N0") đ</strong></td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">Không có sản phẩm nào trong đơn hàng này.</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" class="text-end"><strong>Tổng Cộng Đơn Hàng:</strong></td>
+                        <td class="text-end"><strong class="text-danger fs-5">@Model.TongTien?.ToString("N0") đ</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4 pb-4">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Quay Lại Danh Sách Đơn Hàng
+        </a>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaHd">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+@* --- MODAL XÁC NHẬN CHUYỂN TRẠNG THÁI --- *@
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fa fa-question-circle me-2"></i>
+                    Xác nhận
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage" class="mb-0"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i> Hủy
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmBtn">
+                    <i class="fa fa-check me-1"></i> Xác nhận
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* --- MODAL NHẬP LÝ DO HỦY --- *@
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fa fa-ban me-2"></i>
+                    Hủy đơn hàng
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label fw-semibold">Lý do hủy đơn:</label>
+                <textarea class="form-control" id="cancelReason" rows="3" placeholder="Nhập lý do hủy..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i> Đóng
+                </button>
+                <button type="button" class="btn btn-danger" id="cancelConfirmBtn">
+                    <i class="fa fa-ban me-1"></i> Xác nhận hủy
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
