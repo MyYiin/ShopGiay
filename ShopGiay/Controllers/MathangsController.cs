@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Plugins;
+using Newtonsoft.Json;
 using ShopGiay.Data;
 using ShopGiay.Models;
 using System.IO;
@@ -20,10 +20,38 @@ namespace ShopGiay.Controllers
         {
             _context = context;
         }
+
+        // Tính số lượng sản phẩm trong giỏ hàng
+        void GetCartData()
+        {
+            var cart = GetCartItems();
+            if (cart == null || cart.Count == 0)
+            {
+                ViewData["SoLuong"] = 0;
+            }
+            else
+            {
+                ViewData["SoLuong"] = cart.Sum(item => item.SoLuong);
+            }
+        }
+
+        // Lấy giỏ hàng từ session
+        List<CartItem> GetCartItems()
+        {
+            var session = HttpContext.Session;
+            string? jsoncart = session.GetString("shopcart");
+            if (jsoncart != null)
+            {
+                var cartItems = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CartItem>>(jsoncart);
+                return cartItems ?? new List<CartItem>();
+            }
+            return new List<CartItem>();
+        }
         
         // GET: Mathangs
         public async Task<IActionResult> Index()
         {
+            GetCartData();
             var applicationDbContext = _context.Mathangs.Include(m => m.MaLgNavigation).Include(m => m.MaThNavigation);
             return View(await applicationDbContext.ToListAsync());
         }
@@ -31,6 +59,7 @@ namespace ShopGiay.Controllers
         // GET: Mathangs/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            GetCartData();
             if (id == null)
             {
                 return NotFound();
@@ -234,20 +263,32 @@ namespace ShopGiay.Controllers
 
         public async Task<IActionResult> TheoLoai(int id)
         {
-            
+            GetCartData();
             var ds = await _context.Mathangs
+                .Include(m => m.MaLgNavigation)
+                .Include(m => m.MaThNavigation)
                 .Where(m => m.MaLg == id)
                 .ToListAsync();
-           
+
+            // Lấy tên loại giày để hiển thị
+            var loaiGiay = await _context.Loaigiays.FindAsync(id);
+            ViewBag.LoaiGiay = loaiGiay?.Ten;
+
             return View(ds);
         }
         public async Task<IActionResult> TheoThuongHieu(int id)
         {
-           
+            GetCartData();
             var ds = await _context.Mathangs
+                .Include(m => m.MaLgNavigation)
+                .Include(m => m.MaThNavigation)
                 .Where(m => m.MaTh == id)
                 .ToListAsync();
-           
+
+            // Lấy tên thương hiệu để hiển thị
+            var thuongHieu = await _context.Thuonghieus.FindAsync(id);
+            ViewBag.ThuongHieu = thuongHieu?.Ten;
+
             return View(ds);
         }
 

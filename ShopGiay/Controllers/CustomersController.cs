@@ -140,7 +140,21 @@ namespace ShopGiay.Controllers
         [HttpGet]
         public async Task<IActionResult> AddToCart(int id)
         {
-            // Lấy sản phẩm đầu tiên còn hàng
+            var cart = GetCartItems();
+
+            // Kiểm tra xem sản phẩm này đã có trong giỏ hàng chưa (bất kỳ màu/size nào)
+            var existingItem = cart.FirstOrDefault(p => p.MatHang.MaMh == id);
+
+            if (existingItem != null)
+            {
+                // Nếu đã có trong giỏ, tăng số lượng của item đó
+                existingItem.SoLuong++;
+                SaveCartSession(cart);
+                TempData["SuccessMessage"] = "Đã tăng số lượng sản phẩm trong giỏ hàng!";
+                return Redirect(Request.Headers["Referer"].ToString());
+            }
+
+            // Nếu chưa có, lấy biến thể đầu tiên còn hàng
             var tonkho = await _context.Tonkhos
                 .Include(t => t.MaMhNavigation)
                 .Include(t => t.MaMsNavigation)
@@ -153,32 +167,22 @@ namespace ShopGiay.Controllers
                 return Redirect(Request.Headers["Referer"].ToString());
             }
 
-            var cart = GetCartItems();
-            var item = cart.Find(p => p.TonkhoId == tonkho.MaK);
-
-            if (item != null)
+            // Thêm mới vào giỏ
+            cart.Add(new CartItem()
             {
-                item.SoLuong++;
-            }
-            else
-            {
-                cart.Add(new CartItem()
-                {
-                    TonkhoId = tonkho.MaK,
-                    MatHang = tonkho.MaMhNavigation,
-                    MauSac = tonkho.MaMsNavigation.Ten,
-                    KichCo = tonkho.MaKcNavigation.GiaTriKc,
-                    MaMs = tonkho.MaMs,
-                    MaKc = tonkho.MaKc,
-                    SoLuong = 1
-                });
-            }
+                TonkhoId = tonkho.MaK,
+                MatHang = tonkho.MaMhNavigation,
+                MauSac = tonkho.MaMsNavigation.Ten,
+                KichCo = tonkho.MaKcNavigation.GiaTriKc,
+                MaMs = tonkho.MaMs,
+                MaKc = tonkho.MaKc,
+                SoLuong = 1
+            });
 
             SaveCartSession(cart);
             GetData();
 
             TempData["SuccessMessage"] = "Đã thêm sản phẩm vào giỏ hàng!";
-            // Quay về trang trước đó (không chuyển trang)
             return Redirect(Request.Headers["Referer"].ToString());
         }
 
