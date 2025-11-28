@@ -50,12 +50,7 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // Chỉ dùng connection string này nếu chưa được cấu hình từ Program.cs
-        if (!optionsBuilder.IsConfigured)
-        {
-            // Fallback connection string - thường không dùng đến vì đã config trong Program.cs
-            optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=shop_giay;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
-        }
+        optionsBuilder.UseSqlServer("Server=LAPTOP-A17NC8EA\\MSSQLMD1226;Initial Catalog=shop_giay;User ID=sa;Password=md1226;TrustServerCertificate=True;");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
