@@ -1,42 +1,89 @@
 ﻿@model ShopGiay.Models.Khachhang
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết Khách hàng";
+    Layout = "_LayoutAdmin";
 }
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Chi tiết Khách hàng</h1>
+            <p class="text-muted">Thông tin chi tiết về khách hàng được chọn.</p>
+        </div>
+    </div>
 
-<h1>Details</h1>
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-user-circle"></i> Thông tin Khách hàng: @Html.DisplayFor(model => model.Ten)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row detail-list">
+                        <dt class="col-sm-4 text-muted">
+                            <i class="fas fa-id-badge"></i> @Html.DisplayNameFor(model => model.Ten)
+                        </dt>
+                        <dd class="col-sm-8 font-weight-bold">
+                            @Html.DisplayFor(model => model.Ten)
+                        </dd>
 
-<div>
-    <h4>Khachhang</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Ten)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Ten)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DienThoai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DienThoai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MatKhau)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MatKhau)
-        </dd>
-    </dl>
+                        <dt class="col-sm-4 text-muted">
+                            <i class="fas fa-phone"></i> @Html.DisplayNameFor(model => model.DienThoai)
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Html.DisplayFor(model => model.DienThoai)
+                        </dd>
+
+                        <dt class="col-sm-4 text-muted">
+                            <i class="fas fa-envelope"></i> @Html.DisplayNameFor(model => model.Email)
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Html.DisplayFor(model => model.Email)
+                        </dd>
+
+                        <dt class="col-sm-4 text-muted">
+                            <i class="fas fa-lock"></i> @Html.DisplayNameFor(model => model.MatKhau)
+                        </dt>
+                        <dd class="col-sm-8 text-danger">
+                            ********
+                        </dd>
+                    </dl>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@Model?.MaKh" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Chỉnh sửa
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model?.MaKh" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash-alt"></i> Xóa
+                        </a>
+                    </div>
+                    <a asp-action="Index" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Quay lại Danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaKh">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+@section Scripts {
+    <style>
+        /* Thêm một chút CSS cho đẹp hơn */
+        .detail-list dt {
+            font-weight: 500;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .detail-list dd {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #eee;
+            margin-bottom: 0;
+        }
+    </style>
+}

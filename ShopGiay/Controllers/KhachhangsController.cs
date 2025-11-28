@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ShopGiay.Data;
 using ShopGiay.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ShopGiay.Controllers
 {
@@ -23,6 +24,31 @@ namespace ShopGiay.Controllers
         public async Task<IActionResult> Index()
         {
             return View(await _context.Khachhangs.ToListAsync());
+        }
+        public IActionResult ResetPassword(int id)
+        {
+            var kh = _context.Khachhangs.Find(id);
+            if (kh == null)
+                return NotFound();
+
+            return View(kh);
+        }
+        [HttpPost]
+        public IActionResult ResetPassword(int MaKh, string NewPassword)
+        {
+            var kh = _context.Khachhangs.Find(MaKh);
+            if (kh == null)
+                return NotFound();
+
+            // Hash mật khẩu
+            var hasher = new PasswordHasher<Khachhang>();
+            kh.MatKhau = hasher.HashPassword(kh, NewPassword);
+
+            _context.Update(kh);
+            _context.SaveChanges();
+
+            TempData["Success"] = "Đặt lại mật khẩu thành công!";
+            return RedirectToAction("Index");
         }
 
         // GET: Khachhangs/Details/5

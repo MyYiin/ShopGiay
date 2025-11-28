@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Newtonsoft.Json;
 using ShopGiay.Data;
 using ShopGiay.Models;
@@ -670,5 +671,57 @@ namespace ShopGiay.Controllers
             // 4. Chuyển hướng về trang chi tiết sản phẩm
             return RedirectToAction("Details", new { id = model.MaMh });
         }
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ForgotPassword(string email)
+        {
+            var user = _context.Khachhangs.FirstOrDefault(x => x.Email == email);
+
+            if (user == null)
+            {
+                TempData["Error"] = "Email không tồn tại!";
+                return View();
+            }
+
+            return RedirectToAction("ResetPassword", new { email = email });
+        }
+
+        // Trang nhập mật khẩu mới
+        public IActionResult ResetPassword(string email)
+        {
+            ViewBag.Email = email;
+            return View();
+        }
+
+        // -----------------------------
+        // 2) ĐỔI MẬT KHẨU
+        // -----------------------------
+        [HttpPost]
+        public IActionResult ResetPassword(string email, string newPassword)
+        {
+            var user = _context.Khachhangs.FirstOrDefault(u => u.Email == email);
+
+            if (user == null)
+            {
+                TempData["Error"] = "Không tìm thấy tài khoản!";
+                return View();
+            }
+
+            // Hash mật khẩu bằng PasswordHasher
+            user.MatKhau = _passwordHasher.HashPassword(user, newPassword);
+
+            _context.SaveChanges();
+
+            TempData["Success"] = "Đặt lại mật khẩu thành công! Hãy đăng nhập lại.";
+
+            return RedirectToAction("Login");
+        }
+
+
     }
 }

@@ -16,12 +16,19 @@
             }
             <form method="post" asp-action="Login">
 
-                <input class="form-control" type="text" name="email" placeholder="Email" required><br>
-                <input class="form-control" type="password" name="matkhau"placeholder="Mật khẩu" required><br>
+                <input class="form-control" type="text" name="email" placeholder="Email" required /><br>
+                <input class="form-control" type="password" name="matkhau" placeholder="Mật khẩu" required /><br>
+
                 <div class="d-grid">
-                    <input class="btn btn-info btn-block" type="submit"value="Đăng nhập">
+                    <input class="btn btn-info btn-block" type="submit" value="Đăng nhập" />
                 </div>
             </form>
+
+            <!-- 👉 Thêm mục Quên mật khẩu -->
+            <div class="my-2 text-center">
+                <a asp-controller="Customers" asp-action="ForgotPassword">Quên mật khẩu?</a>
+            </div>
+
             <div class="my-3 text-center">
                 Chưa có tài khoản? <a asp-controller="Customers" asp-action="Register">Đăng ký</a>
             </div>
@@ -29,4 +36,4 @@
         </div>
     </div>
     <div class="col-sm-4"></div>
-</div> 
+</div>

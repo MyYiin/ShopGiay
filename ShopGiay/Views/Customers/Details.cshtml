@@ -177,12 +177,9 @@
 
                 <!-- Nút Mua hàng và Quay lại -->
                 <div class="d-flex gap-3">
-                    <a asp-controller="Customers"
-                           asp-action="AddToCart"
-                           asp-route-id="@Model.MaMh"
-                           class="btn btn-success btn-lg flex-grow-1 text-white fw-bold">
-                            <i class="bi bi-bag-plus-fill"></i> Thêm vào giỏ hàng
-                        </a>
+                    <a asp-controller="Customers" asp-action="AddToCart" asp-route-id="@Model.MaMh" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-bag-plus-fill"></i> Thêm vào giỏ hàng
+                    </a>
                     <a asp-controller="Customers" asp-action="Index" class="btn btn-outline-secondary btn-lg">
                         <i class="bi bi-arrow-left me-2"></i> Trở về cửa hàng
                     </a>
@@ -200,6 +197,7 @@
         {
             <div class="review-box mb-5 bg-light">
                 <h4 class="mb-3">Gửi đánh giá của bạn</h4>
+                @* ĐÃ SỬA: Trỏ đến action GuiDanhGia *@
                 <form asp-action="GuiDanhGia" asp-controller="Customers" method="post">
                     <input type="hidden" name="MaMh" value="@Model.MaMh" />
 
@@ -225,10 +223,11 @@
                         <textarea class="form-control" id="NoiDung" name="NoiDung" rows="3"></textarea>
                     </div>
 
-                    <!-- CHECKBOX ẨN DANH (Cần name="IsAnonymous" và value="true") -->
+                    <!-- CHECKBOX ẨN DANH -->
                     <div class="mb-3">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="true" id="isAnonymous" name="IsAnonymous">
+                            @* Tên name là AnDanh để ánh xạ nếu dùng model Danhgia, hoặc để nhận giá trị trong HttpContext.Request.Form["AnDanh"] nếu dùng parameter list *@
+                            <input class="form-check-input" type="checkbox" value="true" id="isAnonymous" name="AnDanh">
                             <label class="form-check-label" for="isAnonymous">
                                 <i class="bi bi-mask me-1"></i> Đánh giá ẩn danh (Tên của bạn sẽ được ẩn)
                             </label>
@@ -249,12 +248,12 @@
     else
     {
         <div class="alert alert-warning mb-5" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>Vui lòng <a asp-controller="Customers" asp-action="DangNhap" class="alert-link">Đăng nhập</a> để gửi đánh giá.
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>Vui lòng <a asp-controller="Customers" asp-action="Login" class="alert-link">Đăng nhập</a> để gửi đánh giá.
         </div>
     }
 
 
-    <!-- 2. Danh sách đánh giá đã có (CẬP NHẬT LOGIC HIỂN THỊ TÊN ẨN DANH) -->
+    <!-- 2. Danh sách đánh giá đã có -->
     <div class="review-list">
         @if (danhSachDanhGia.Any())
         {
@@ -264,14 +263,14 @@
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="review-user-name">
                             <i class="bi bi-person-circle me-1"></i>
+                            @* Logic kiểm tra AnDanh *@
                             @if (review.IsAnonymous)
                             {
-                                <!-- Hiển thị ẩn danh nếu trường IsAnonymous là true -->
                                 <span>Khách hàng ẩn danh</span>
                             }
                             else
                             {
-                                <!-- Hiển thị tên thật nếu IsAnonymous là false -->
+                                <!-- Hiển thị tên thật nếu AnDanh là false -->
                                 @(review.MaKhNavigation?.Ten ?? "Khách hàng")
                             }
                         </span>
