@@ -26,6 +26,7 @@
                             <th>Sản Phẩm</th>
                             <th>Màu Sắc / Kích Cỡ</th>
                             <th class="text-center">Số Lượng Tồn</th>
+                            <th class="text-center">Đã Bán</th>
                             <th class="text-end">Giá Gốc (VNĐ)</th>
                             <th class="text-end">Giá Bán (VNĐ)</th>
                             <th class="text-center">Thao Tác</th>
@@ -54,6 +55,15 @@
                                     <span class="fw-bold @(item.SoLuongTonKho <= 5 ? "text-danger" : "text-success")">
                                         @Html.DisplayFor(modelItem => item.SoLuongTonKho)
                                     </span>
+                                </td>
+                                <td class="text-center">
+                                    @{
+                                        var soLuongDaBanDict = ViewBag.SoLuongDaBan as Dictionary<int, int>;
+                                        var soLuongDaBan = soLuongDaBanDict != null && soLuongDaBanDict.ContainsKey(item.MaK)
+                                            ? soLuongDaBanDict[item.MaK]
+                                            : 0;
+                                    }
+                                    <span class="fw-bold text-info">@soLuongDaBan</span>
                                 </td>
                                 <td class="text-end">
                                     @item.GiaGocBt?.ToString("N0")

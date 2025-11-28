@@ -95,13 +95,56 @@
                             <h5 class="product-name" title="@Html.DisplayFor(modelItem => item.Ten)">@Html.DisplayFor(modelItem => item.Ten)</h5>
                         </a>
 
-                        <!-- Product reviews (Mô phỏng 4/5 sao) -->
-                        <div class="d-flex justify-content-center small text-warning mb-2">
-                            <div class="bi-star-fill"></div>
-                            <div class="bi-star-fill"></div>
-                            <div class="bi-star-fill"></div>
-                            <div class="bi-star-fill"></div>
-                            <div class="bi-star"></div>
+                        <!-- Product reviews (Điểm đánh giá động từ database) -->
+                        @{
+                            var danhGiaDict = ViewBag.DanhGia as Dictionary<int, dynamic>;
+                            double diemTrungBinh = 0;
+                            int soLuongDanhGia = 0;
+
+                            if (danhGiaDict != null && danhGiaDict.ContainsKey(item.MaMh))
+                            {
+                                diemTrungBinh = Math.Round(danhGiaDict[item.MaMh].DiemTrungBinh, 1);
+                                soLuongDanhGia = danhGiaDict[item.MaMh].SoLuongDanhGia;
+                            }
+
+                            // Tính số sao đầy và sao rỗng
+                            int soSaoDau = (int)Math.Floor(diemTrungBinh);
+                            bool coSaoNua = (diemTrungBinh - soSaoDau) >= 0.5;
+                            int soSaoRong = 5 - soSaoDau - (coSaoNua ? 1 : 0);
+                        }
+
+                        <div class="d-flex justify-content-center align-items-center small text-warning mb-2">
+                            @* Hiển thị sao đầy *@
+                            @for (int i = 0; i < soSaoDau; i++)
+                            {
+                                <div class="bi-star-fill"></div>
+                            }
+
+                            @* Hiển thị sao nửa nếu có *@
+                            @if (coSaoNua)
+                            {
+                                <div class="bi-star-half"></div>
+                            }
+
+                            @* Hiển thị sao rỗng *@
+                            @for (int i = 0; i < soSaoRong; i++)
+                            {
+                                <div class="bi-star"></div>
+                            }
+
+                            @* Hiển thị điểm số và số lượng đánh giá *@
+                            @if (soLuongDanhGia > 0)
+                            {
+                                <span class="ms-2 text-muted" style="font-size: 0.85rem;">
+                                    (@diemTrungBinh.ToString("0.0")/5 - @soLuongDanhGia đánh giá)
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="ms-2 text-muted" style="font-size: 0.85rem;">
+                                    (Chưa có đánh giá)
+                                </span>
+                            }
                         </div>
 
                         <!-- Product price -->

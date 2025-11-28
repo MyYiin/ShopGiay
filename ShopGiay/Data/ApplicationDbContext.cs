@@ -49,8 +49,14 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser, Iden
     public virtual DbSet<Tonkho> Tonkhos { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=LAPTOP-A17NC8EA\\MSSQLMD1226;Initial Catalog=shop_giay;User ID=sa;Password=md1226;TrustServerCertificate=True;");
+    {
+        // Chỉ dùng connection string này nếu chưa được cấu hình từ Program.cs
+        if (!optionsBuilder.IsConfigured)
+        {
+            // Fallback connection string - thường không dùng đến vì đã config trong Program.cs
+            optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=shop_giay;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

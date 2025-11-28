@@ -54,9 +54,25 @@ namespace ShopGiay.Controllers
         {
             GetData();
             var applicationDbContext = _context.Mathangs.Where(m => m.MaTh == id).Include(m => m.MaThNavigation);
-            ViewData["loaigiay"] = _context.Loaigiays.FirstOrDefault(d => d.MaLg == id).Ten;
-            ViewData["thuonghieu"] = _context.Thuonghieus.FirstOrDefault(t => t.MaTh == id).Ten;
-            return View(await applicationDbContext.ToListAsync());
+            var mathangs = await applicationDbContext.ToListAsync();
+
+            ViewData["loaigiay"] = _context.Loaigiays.FirstOrDefault(d => d.MaLg == id)?.Ten;
+            ViewData["thuonghieu"] = _context.Thuonghieus.FirstOrDefault(t => t.MaTh == id)?.Ten;
+
+            // Tính điểm đánh giá trung bình cho từng sản phẩm
+            var danhGiaDict = await _context.Danhgia
+                .GroupBy(dg => dg.MaMh)
+                .Select(g => new
+                {
+                    MaMh = g.Key,
+                    DiemTrungBinh = g.Average(dg => (double)dg.Diem),
+                    SoLuongDanhGia = g.Count()
+                })
+                .ToDictionaryAsync(x => x.MaMh, x => new { x.DiemTrungBinh, x.SoLuongDanhGia });
+
+            ViewBag.DanhGia = danhGiaDict;
+
+            return View(mathangs);
         }
 
         // GET: Customers
@@ -64,7 +80,22 @@ namespace ShopGiay.Controllers
         {
             GetData();
             var applicationDbContext = _context.Mathangs.Include(m => m.MaThNavigation);
-            return View(await applicationDbContext.ToListAsync());
+            var mathangs = await applicationDbContext.ToListAsync();
+
+            // Tính điểm đánh giá trung bình cho từng sản phẩm
+            var danhGiaDict = await _context.Danhgia
+                .GroupBy(dg => dg.MaMh)
+                .Select(g => new
+                {
+                    MaMh = g.Key,
+                    DiemTrungBinh = g.Average(dg => (double)dg.Diem),
+                    SoLuongDanhGia = g.Count()
+                })
+                .ToDictionaryAsync(x => x.MaMh, x => new { x.DiemTrungBinh, x.SoLuongDanhGia });
+
+            ViewBag.DanhGia = danhGiaDict;
+
+            return View(mathangs);
         }
 
         // GET: Customers/Details/5
@@ -539,9 +570,28 @@ namespace ShopGiay.Controllers
                 .FirstOrDefaultAsync(m => m.Email == email);
             if (kh != null && _passwordHasher.VerifyHashedPassword(kh, kh.MatKhau, matkhau) == PasswordVerificationResult.Success)
             {
-                // Đăng nhập thành công, thực hiện các hành động cần thiết 
-                // Ví dụ: Ghi thông tin người dùng vào Session 
+                // Đăng nhập thành công
+                // 1. Thiết lập Session
                 HttpContext.Session.SetString("khachhang", kh.Email);
+
+                // 2. Tạo Claims cho authentication
+                var claims = new List<Claim>
+                {
+                    new Claim("MaKH", kh.MaKh.ToString()),
+                    new Claim(ClaimTypes.Email, kh.Email),
+                    new Claim(ClaimTypes.Name, kh.Ten),
+                    new Claim(ClaimTypes.NameIdentifier, kh.MaKh.ToString())
+                };
+
+                var claimsIdentity = new ClaimsIdentity(claims, "Customer");
+                var authProperties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+                {
+                    IsPersistent = true, // Cookie sẽ tồn tại sau khi đóng browser
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                };
+
+                await HttpContext.SignInAsync("Customer", new ClaimsPrincipal(claimsIdentity), authProperties);
+
                 return RedirectToAction(nameof(CustomerInfo));
 
             }
@@ -559,12 +609,18 @@ namespace ShopGiay.Controllers
 
             if (!string.IsNullOrEmpty(customerEmail))
             {
-                // Lấy thông tin khách hàng từ database với chi tiết hóa đơn
+                // Lấy thông tin khách hàng từ database với chi tiết hóa đơn đầy đủ
                 var khachhang = await _context.Khachhangs
                     .Include(k => k.Diachis)
                     .Include(k => k.Hoadons)
                         .ThenInclude(h => h.Cthoadons)
-                        .ThenInclude(ct => ct.MaMhNavigation)
+                            .ThenInclude(ct => ct.MaMhNavigation)
+                    .Include(k => k.Hoadons)
+                        .ThenInclude(h => h.Cthoadons)
+                            .ThenInclude(ct => ct.MaMsNavigation)
+                    .Include(k => k.Hoadons)
+                        .ThenInclude(h => h.Cthoadons)
+                            .ThenInclude(ct => ct.MaKcNavigation)
                     .FirstOrDefaultAsync(k => k.Email == customerEmail);
 
                 ViewBag.khachhang = khachhang;
@@ -573,10 +629,15 @@ namespace ShopGiay.Controllers
             return View();
         }
 
-        public IActionResult Signout()
+        public async Task<IActionResult> Signout()
         {
+            // Xóa session
             HttpContext.Session.SetString("khachhang", "");
             ClearCart(); // Xóa giỏ hàng khi đăng xuất
+
+            // Sign out khỏi authentication scheme
+            await HttpContext.SignOutAsync("Customer");
+
             return RedirectToAction("Index");
         }
         public IActionResult About()

@@ -22,8 +22,21 @@ namespace ShopGiay.Controllers
         // GET: Tonkhos
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Tonkhos.Include(t => t.MaKcNavigation).Include(t => t.MaMhNavigation).Include(t => t.MaMsNavigation);
-            return View(await applicationDbContext.ToListAsync());
+            var tonkhos = await _context.Tonkhos
+                .Include(t => t.MaKcNavigation)
+                .Include(t => t.MaMhNavigation)
+                .Include(t => t.MaMsNavigation)
+                .ToListAsync();
+
+            // Tính số lượng đã bán cho từng tồn kho
+            var soLuongDaBan = await _context.Cthoadons
+                .GroupBy(ct => ct.MaK)
+                .Select(g => new { MaK = g.Key, SoLuongDaBan = g.Sum(ct => ct.SoLuong ?? 0) })
+                .ToDictionaryAsync(x => x.MaK, x => x.SoLuongDaBan);
+
+            ViewBag.SoLuongDaBan = soLuongDaBan;
+
+            return View(tonkhos);
         }
 
         // GET: Tonkhos/Details/5
