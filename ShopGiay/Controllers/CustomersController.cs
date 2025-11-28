@@ -730,20 +730,6 @@ namespace ShopGiay.Controllers
             // 1. Kiểm tra đăng nhập qua Session
             var customerEmail = HttpContext.Session.GetString("khachhang");
 
-            // DEBUG: Log chi tiết
-            Console.WriteLine($"=== ReviewProduct Debug ===");
-            Console.WriteLine($"Session ID: {HttpContext.Session.Id}");
-            Console.WriteLine($"Session IsAvailable: {HttpContext.Session.IsAvailable}");
-            Console.WriteLine($"CustomerEmail: {customerEmail ?? "NULL"}");
-
-            // Thử load lại Session nếu null
-            if (string.IsNullOrEmpty(customerEmail))
-            {
-                await HttpContext.Session.LoadAsync();
-                customerEmail = HttpContext.Session.GetString("khachhang");
-                Console.WriteLine($"After LoadAsync - CustomerEmail: {customerEmail ?? "STILL NULL"}");
-            }
-
             if (string.IsNullOrEmpty(customerEmail))
             {
                 TempData["Error"] = "Vui lòng đăng nhập để đánh giá sản phẩm.";
