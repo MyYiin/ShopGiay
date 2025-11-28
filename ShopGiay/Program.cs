@@ -22,8 +22,9 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// ------------ AUTHENTICATION CHO KHÁCH HÀNG (COOKIE SCHEME) ------------
-builder.Services.AddAuthentication("Customer")
+// ------------ AUTHENTICATION CHO KHÁCH HÀNG (THÊM COOKIE SCHEME RIÊNG) ------------
+// Identity đã có scheme riêng, chỉ cần THÊM scheme "Customer", KHÔNG ghi đè default
+builder.Services.AddAuthentication()
     .AddCookie("Customer", options =>
     {
         options.LoginPath = "/Customers/Login";
