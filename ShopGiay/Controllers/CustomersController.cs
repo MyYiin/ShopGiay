@@ -577,8 +577,9 @@ namespace ShopGiay.Controllers
             if (kh != null && _passwordHasher.VerifyHashedPassword(kh, kh.MatKhau, matkhau) == PasswordVerificationResult.Success)
             {
                 // Đăng nhập thành công
-                // 1. Thiết lập Session
+                // 1. Thiết lập Session và COMMIT ngay lập tức
                 HttpContext.Session.SetString("khachhang", kh.Email);
+                await HttpContext.Session.CommitAsync(); // QUAN TRỌNG: Commit Session ngay!
 
                 // 2. Tạo Claims cho authentication
                 var claims = new List<Claim>
@@ -645,9 +646,10 @@ namespace ShopGiay.Controllers
 
         public async Task<IActionResult> Signout()
         {
-            // Xóa session
-            HttpContext.Session.SetString("khachhang", "");
+            // Xóa session đúng cách
+            HttpContext.Session.Remove("khachhang"); // Dùng Remove thay vì SetString("")
             ClearCart(); // Xóa giỏ hàng khi đăng xuất
+            await HttpContext.Session.CommitAsync(); // Commit ngay
 
             // Sign out khỏi authentication scheme
             await HttpContext.SignOutAsync("Customer");
