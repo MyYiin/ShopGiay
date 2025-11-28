@@ -47,6 +47,8 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true; // Quan trọng: Cookie cần thiết cho app hoạt động
+    options.Cookie.SameSite = SameSiteMode.Lax; // Cho phép gửi cookie khi navigate
     options.IdleTimeout = TimeSpan.FromDays(7);
 });
 

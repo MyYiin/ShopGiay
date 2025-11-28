@@ -723,13 +723,24 @@ namespace ShopGiay.Controllers
         [HttpGet]
         public async Task<IActionResult> ReviewProduct(int id) // id chính là MaMh
         {
-            GetData(); // QUAN TRỌNG: Phải gọi GetData() để load Session và dữ liệu ViewData
+            GetData();
 
             // 1. Kiểm tra đăng nhập qua Session
             var customerEmail = HttpContext.Session.GetString("khachhang");
 
-            // DEBUG: Log ra console để kiểm tra
-            Console.WriteLine($"ReviewProduct - CustomerEmail from Session: {customerEmail ?? "NULL"}");
+            // DEBUG: Log chi tiết
+            Console.WriteLine($"=== ReviewProduct Debug ===");
+            Console.WriteLine($"Session ID: {HttpContext.Session.Id}");
+            Console.WriteLine($"Session IsAvailable: {HttpContext.Session.IsAvailable}");
+            Console.WriteLine($"CustomerEmail: {customerEmail ?? "NULL"}");
+
+            // Thử load lại Session nếu null
+            if (string.IsNullOrEmpty(customerEmail))
+            {
+                await HttpContext.Session.LoadAsync();
+                customerEmail = HttpContext.Session.GetString("khachhang");
+                Console.WriteLine($"After LoadAsync - CustomerEmail: {customerEmail ?? "STILL NULL"}");
+            }
 
             if (string.IsNullOrEmpty(customerEmail))
             {
