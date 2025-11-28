@@ -17,14 +17,26 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 // ------------ IDENTITY CHO ADMIN -------------
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = false; 
+    options.SignIn.RequireConfirmedAccount = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+// ------------ AUTHENTICATION CHO KHÁCH HÀNG (COOKIE SCHEME) ------------
+builder.Services.AddAuthentication("Customer")
+    .AddCookie("Customer", options =>
+    {
+        options.LoginPath = "/Customers/Login";
+        options.LogoutPath = "/Customers/Signout";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
+    });
+
 // ------------ HASH PASSWORD CHO KHÁCH HÀNG ------------
 builder.Services.AddSingleton<IPasswordHasher<Khachhang>, PasswordHasher<Khachhang>>();
-;
+
+// ------------ HTTP CONTEXT ACCESSOR ------------
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
