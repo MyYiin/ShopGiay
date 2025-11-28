@@ -723,8 +723,14 @@ namespace ShopGiay.Controllers
         [HttpGet]
         public async Task<IActionResult> ReviewProduct(int id) // id chính là MaMh
         {
+            GetData(); // QUAN TRỌNG: Phải gọi GetData() để load Session và dữ liệu ViewData
+
             // 1. Kiểm tra đăng nhập qua Session
             var customerEmail = HttpContext.Session.GetString("khachhang");
+
+            // DEBUG: Log ra console để kiểm tra
+            Console.WriteLine($"ReviewProduct - CustomerEmail from Session: {customerEmail ?? "NULL"}");
+
             if (string.IsNullOrEmpty(customerEmail))
             {
                 TempData["Error"] = "Vui lòng đăng nhập để đánh giá sản phẩm.";

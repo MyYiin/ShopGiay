@@ -192,7 +192,7 @@
 
     @{
         // Check đăng nhập qua Session thay vì User.Identity
-        var customerEmail = Context.Session.GetString("khachhang");
+        var customerEmail = ViewContext.HttpContext.Session.GetString("khachhang");
         var isLoggedIn = !string.IsNullOrEmpty(customerEmail);
     }
 
