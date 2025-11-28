@@ -133,13 +133,18 @@ namespace ShopGiay.Controllers
 
             // 3. Kiểm tra khách hàng hiện tại đã đánh giá chưa
             bool hasReviewed = false;
-            // Lấy MaKH từ Claims. Giả định bạn lưu MaKH là một Claim khi đăng nhập.
-            var userIdString = _httpContextAccessor.HttpContext.User.FindFirst("MaKH")?.Value;
-            
-            if (!string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int maKh))
+            // Lấy email từ Session
+            var customerEmail = HttpContext.Session.GetString("khachhang");
+
+            if (!string.IsNullOrEmpty(customerEmail))
             {
-                // Kiểm tra nếu MaKH đã tồn tại trong danh sách đánh giá cho sản phẩm này
-                hasReviewed = danhSachDanhGia.Any(dg => dg.MaKh == maKh);
+                // Tìm khách hàng từ email
+                var khachhang = await _context.Khachhangs.FirstOrDefaultAsync(k => k.Email == customerEmail);
+                if (khachhang != null)
+                {
+                    // Kiểm tra nếu MaKH đã tồn tại trong danh sách đánh giá cho sản phẩm này
+                    hasReviewed = danhSachDanhGia.Any(dg => dg.MaKh == khachhang.MaKh);
+                }
             }
             
             // 4. Lấy danh sách biến thể (Giả định có bảng BienThe và Model tương ứng)
@@ -622,6 +627,14 @@ namespace ShopGiay.Controllers
                     .Include(k => k.Hoadons)
                         .ThenInclude(h => h.Cthoadons)
                             .ThenInclude(ct => ct.MaKcNavigation)
+                    .Include(k => k.Hoadons)
+                        .ThenInclude(h => h.Cthoadons)
+                            .ThenInclude(ct => ct.MaKNavigation)
+                                .ThenInclude(tk => tk.MaMsNavigation)
+                    .Include(k => k.Hoadons)
+                        .ThenInclude(h => h.Cthoadons)
+                            .ThenInclude(ct => ct.MaKNavigation)
+                                .ThenInclude(tk => tk.MaKcNavigation)
                     .FirstOrDefaultAsync(k => k.Email == customerEmail);
 
                 ViewBag.khachhang = khachhang;
@@ -648,18 +661,26 @@ namespace ShopGiay.Controllers
         // Thêm Action này vào CustomersController
         // POST: Customers/GuiDanhGia
         [HttpPost]
-        [Authorize] // Yêu cầu khách hàng phải đăng nhập
         public async Task<IActionResult> GuiDanhGia(int MaMh, int Diem, string NoiDung)
         {
-            // 1. Lấy MaKH của khách hàng đang đăng nhập (giả định đã lưu trong Claim "MaKH")
-            var userIdString = _httpContextAccessor.HttpContext.User.FindFirst("MaKH")?.Value;
+            // 1. Lấy email khách hàng từ session (như CustomerInfo đang làm)
+            var customerEmail = HttpContext.Session.GetString("khachhang");
 
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int maKh))
+            if (string.IsNullOrEmpty(customerEmail))
             {
-                // Trả về lỗi nếu không tìm thấy MaKH hợp lệ (mặc dù đã có [Authorize])
-                TempData["Error"] = "Vui lòng đăng nhập lại để thực hiện chức năng này.";
-                return RedirectToAction(nameof(Details), new { id = MaMh });
+                TempData["Error"] = "Vui lòng đăng nhập để thực hiện chức năng này.";
+                return RedirectToAction(nameof(Login));
             }
+
+            // 2. Lấy thông tin khách hàng từ email
+            var khachhang = await _context.Khachhangs.FirstOrDefaultAsync(k => k.Email == customerEmail);
+            if (khachhang == null)
+            {
+                TempData["Error"] = "Không tìm thấy thông tin khách hàng.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            int maKh = khachhang.MaKh;
 
             // 2. Kiểm tra khách hàng đã đánh giá sản phẩm này chưa (đảm bảo UNIQUE (MaKH, MaMh))
             var existingReview = await _context.Danhgia
@@ -700,37 +721,71 @@ namespace ShopGiay.Controllers
 
 
         [HttpGet]
-        [Authorize] // Đảm bảo chỉ khách hàng đã đăng nhập mới vào được trang này
-        public IActionResult ReviewProduct(int id) // id chính là MaMh
+        public async Task<IActionResult> ReviewProduct(int id) // id chính là MaMh
         {
-            // 1. Tìm sản phẩm theo id (MaMh)
-            var matHang = _context.Mathangs.Find(id);
+            // 1. Kiểm tra đăng nhập qua Session
+            var customerEmail = HttpContext.Session.GetString("khachhang");
+            if (string.IsNullOrEmpty(customerEmail))
+            {
+                TempData["Error"] = "Vui lòng đăng nhập để đánh giá sản phẩm.";
+                return RedirectToAction(nameof(Login));
+            }
 
-            // 2. Tùy chọn: Kiểm tra xem người dùng có quyền đánh giá sản phẩm này (đã mua) không.
-            //Đây là bước quan trọng để tránh lỗi logic trước đây.
-            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            var daMua = _context.Cthoadons.Any(ct =>
-                ct.MaMh == id && ct.MaHdNavigation.MaKhNavigation.Ten== userId);
+            // 2. Lấy thông tin khách hàng
+            var khachhang = await _context.Khachhangs.FirstOrDefaultAsync(k => k.Email == customerEmail);
+            if (khachhang == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
 
-            if (!daMua) return RedirectToAction("CustomerInfo", new { Message = "Bạn chưa mua sản phẩm này.", Type = "danger" });
+            // 3. Tìm sản phẩm theo id (MaMh)
+            var matHang = await _context.Mathangs.FindAsync(id);
+            if (matHang == null)
+            {
+                return NotFound();
+            }
+
+            // 4. Kiểm tra xem khách hàng đã mua sản phẩm này chưa
+            var daMua = await _context.Cthoadons
+                .Include(ct => ct.MaHdNavigation)
+                .AnyAsync(ct => ct.MaMh == id && ct.MaHdNavigation.MaKh == khachhang.MaKh);
+
+            if (!daMua)
+            {
+                TempData["Error"] = "Bạn chỉ có thể đánh giá sản phẩm đã mua.";
+                return RedirectToAction("CustomerInfo");
+            }
 
             return View(matHang);
         }
         [HttpPost]
-        [Authorize]
-        public IActionResult SubmitReview(Danhgia model)
+        public async Task<IActionResult> SubmitReview(Danhgia model)
         {
-            // 1. Lấy MaKh đang đăng nhập
-            var maKh = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            // 1. Kiểm tra đăng nhập qua Session
+            var customerEmail = HttpContext.Session.GetString("khachhang");
+            if (string.IsNullOrEmpty(customerEmail))
+            {
+                TempData["Error"] = "Vui lòng đăng nhập để đánh giá.";
+                return RedirectToAction(nameof(Login));
+            }
 
-            // 2. Gán các trường còn thiếu
+            // 2. Lấy thông tin khách hàng
+            var khachhang = await _context.Khachhangs.FirstOrDefaultAsync(k => k.Email == customerEmail);
+            if (khachhang == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            // 3. Gán các trường còn thiếu
+            model.MaKh = khachhang.MaKh;
             model.NgayDg = DateTime.Now;
 
-            // 3. Lưu vào DB
+            // 4. Lưu vào DB
             _context.Danhgia.Add(model);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            // 4. Chuyển hướng về trang chi tiết sản phẩm
+            // 5. Chuyển hướng về trang chi tiết sản phẩm
+            TempData["Success"] = "Đánh giá thành công!";
             return RedirectToAction("Details", new { id = model.MaMh });
         }
         [HttpGet]
